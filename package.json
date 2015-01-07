@@ -1,0 +1,17 @@
+{
+  "name": "melkman",
+  "version": "1.0.0",
+  "description": "Visualization of Melkman's algorithm",
+  "main": "melkman.js",
+  "dependencies": {
+    "collections": "^1.2.1"
+  },
+  "devDependencies": {
+    "watchify": "^2.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Max Goldstein",
+  "license": "All Rights Reserved"
+}
