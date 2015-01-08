@@ -58,13 +58,12 @@ function intersect(p0, p1, p2, p3) {
 
 function intersectsAny(p0, p1){
     var ret = false;
-    d3.selectAll(".err").remove();
+    g_lines.selectAll(".err").remove();
     for (var i = 0; i < points.length-2; i++){
         if (intersect(p0, p1, points[i], points[i+1])){
             ret = true
             console.log("gotcha")
             line(points[i], points[i+1])
-                .style("stroke", "red")
                 .attr("class", "err")
         }
     }
@@ -72,33 +71,52 @@ function intersectsAny(p0, p1){
 }
 
 function line(p0, p1){
-    return svg.append("line")
+    return g_lines.append("line")
         .attr("x1", p0[0])
         .attr("y1", p0[1])
         .attr("x2", p1[0])
         .attr("y2", p1[1])
-        .style({stroke: "black", "stroke-width": 2})
 }
 
-function circle(p){
-    return svg.append("circle")
-        .attr("cx", p[0])
-        .attr("cy", p[1])
-        .attr("r", 3)
+function point(p, letter){
+    var g = g_points.append("g").attr("class", "node").translate(p)
+    g.append("circle")
+        .attr("r", 10)
+    if (letter) g.append("text").text(letter).attr("dy", "4px")
 }
+
+var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
+d3.selection.prototype.translate = function(a, b) {
+  return arguments.length == 1
+      ? this.attr("transform", "translate(" + a + ")")
+      : this.attr("transform", "translate(" + a + "," + b + ")")
+};
 
 var dims = {width: 500, height: 500};
-var svg = d3.select("body").style("margin", 0).append("svg").attr(dims);
+var svg = d3.select("body").style("margin", 0).append("svg").attr(dims),
+    g_lines = svg.append("g"),
+    g_points = svg.append("g"),
+    g_deque = svg.append("g").translate(20,20);
 
 var points = [];
+var polygonMade = false;
+
+function finishedCircuit(){
+    polygonMade = true;
+    g_deque.append("polyline")
+        .attr("points", "0,0 10,5 10,95 0,100");
+    g_deque.append("polyline")
+        .attr("points", "40,0 30,5 30,95 40,100");
+}
 
 svg.on("click", function(){
     var pos = d3.mouse(svg.node())
     if (points.length > 0){
         var prev = points[points.length-1]
-        if (dist2(points[0], pos) < 25){ //complete circuit
+        if (dist2(points[0], pos) < 400){ //complete circuit
             line(prev, points[0])
-            console.log("completed circuit")
+            finishedCircuit();
             return;
         }else if (intersectsAny(prev, pos)){
             return;
@@ -106,7 +124,7 @@ svg.on("click", function(){
             line(prev, pos);
         }
     }
-    circle(pos)
+    point(pos, alphabet[points.length])
     points.push(pos)
 
 })

@@ -1,0 +1,20 @@
+.node circle {
+    fill: white;
+    stroke: black;
+}
+
+.node text {
+    text-anchor: middle;
+    font-family: open-sans, sans-serif;
+    font-size: 14px;
+}
+
+line, polyline {
+    fill: none;
+    stroke: black;
+    stroke-width: 2;
+}
+
+line.err {
+    stroke: red;
+}
