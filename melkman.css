@@ -1,15 +1,21 @@
-.node circle {
+.graph-vertex circle {
     fill: white;
     stroke: black;
 }
 
-.node text {
+.graph-vertex text {
     text-anchor: middle;
     font-family: open-sans, sans-serif;
     font-size: 14px;
 }
 
-line, polyline {
+.deque-vertex text {
+    text-anchor: middle;
+    font-family: open-sans, sans-serif;
+    font-size: 18px;
+}
+
+line, polyline, rect {
     fill: none;
     stroke: black;
     stroke-width: 2;

@@ -79,7 +79,7 @@ function line(p0, p1){
 }
 
 function point(p, letter){
-    var g = g_points.append("g").attr("class", "node").translate(p)
+    var g = g_points.append("g").attr("class", "graph-vertex").translate(p)
     g.append("circle")
         .attr("r", 10)
     if (letter) g.append("text").text(letter).attr("dy", "4px")
@@ -100,17 +100,41 @@ var svg = d3.select("body").style("margin", 0).append("svg").attr(dims),
     g_deque = svg.append("g").translate(20,20);
 
 var points = [];
+var deque;
 var polygonMade = false;
 
 function finishedCircuit(){
     polygonMade = true;
+    var a = points[0], b = points[1], c = points[2];
+    if (leftTurn(a,b,c)){
+        deque = new Deque("abc".split(""))
+    }else{
+        deque = new Deque("cba".split(""))
+    }
+    console.log(deque.toArray())
+    var items = g_deque.selectAll("rect")
+        .data(deque.toArray())
+        .enter()
+        .append("g")
+        .attr("transform", function(d,i){return "translate(" + (i*60) + ",0)"})
+        .attr("class", "deque-vertex")
+    items.append("rect").attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
+    items.append("text")
+        .translate(20,20)
+        .attr("dy", "5px")
+        .text(function(d){ return d})
+
+
+    /*
     g_deque.append("polyline")
         .attr("points", "0,0 10,5 10,95 0,100");
     g_deque.append("polyline")
         .attr("points", "40,0 30,5 30,95 40,100");
+    */
 }
 
 svg.on("click", function(){
+    if (polygonMade) return;
     var pos = d3.mouse(svg.node())
     if (points.length > 0){
         var prev = points[points.length-1]
