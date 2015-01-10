@@ -1,4 +1,5 @@
 var Deque = require("collections/deque")
+var explanations = require("./explanation")
 
 function leftTurn(p0, p1, p2){
     var a = p1[0] - p0[0],
@@ -63,19 +64,21 @@ function intersectsAny(p0, p1){
         if (intersect(p0, p1, points[i], points[i+1])){
             ret = true
             console.log("gotcha")
-            line(points[i], points[i+1])
+            var p0 = points[i], p1 = points[i+1];
+            g_lines.append("line")
+                .attr("x1", p0[0])
+                .attr("y1", p0[1])
+                .attr("x2", p1[0])
+                .attr("y2", p1[1])
                 .attr("class", "err")
         }
     }
     return ret;
 }
 
-function line(p0, p1){
-    return g_lines.append("line")
-        .attr("x1", p0[0])
-        .attr("y1", p0[1])
-        .attr("x2", p1[0])
-        .attr("y2", p1[1])
+var line_gen = d3.svg.line();
+function line(){
+    return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
 function point(p, letter){
@@ -97,72 +100,93 @@ var margin = {top: 120, right: 20, bottom: 20, left: 400},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
-var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom);
+var svg_deque = d3.select("#deque")
+            .attr("width", width + margin.right)
+            .attr("height", margin.top - 10)
 
-var g_polygon = svg.append("g").translate(margin.left, margin.top);
-g_polygon.append("rect").attr({width: width, height: height, class: "bg"})
-var g_region = g_polygon.append("g"),
-    g_lines  = g_polygon.append("g"),
-    g_points = g_polygon.append("g"),
-    g_deque = svg.append("g").translate(margin.left, 20),
-    g_text  = svg.append("g").translate(10, margin.top + 15);
-g_deque.append("rect").attr({width: width, height: margin.top - 30, class: "bg"})
+var svg_polygon = d3.select("#polygon")
+            .attr("width", width + margin.right)
+            .attr("height", height + margin.bottom)
 
-svg.append("text")
-    .attr("id", "title")
-    .translate(margin.left/2, margin.top/2 - 10)
-    .text("Melkman's Algorithm")
-svg.append("text")
-    .attr("id", "subtitle")
-    .translate(margin.left/2, margin.top/2 + 15)
-    .text("Visualized by Max Goldstein")
+d3.selectAll("svg").append("rect")
+    .attr({width: width-2, x: 1, y: 1, class: "bg"})
+    .attr("height", function(d,i){return i ? height : margin.top - 30})
 
-var text_big = g_text.append("text")
-                .attr("class", "body1")
-                .text("Start by placing three points on the canvas.")
+var g_deque = svg_deque.append("g");
+svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
+    .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
+    .attr("x", function(d){return d*(width+margin.right)});
+
+var g_region = svg_polygon.append("g"),
+    g_lines  = svg_polygon.append("g"),
+    g_points = svg_polygon.append("g");
+
+g_lines.append("path").attr("id", "path_poly");
+g_lines.append("path").attr("id", "path_hull");
 
 var points = [];
 var deque;
 var freeze = false;
+var state = 0;
+
+var text = d3.select("#text");
 
 function first3(){
     freeze = true;
+    state = 1;
+    text.html(explanations.okayStop)
+}
+
+function revealDeque(){
+    text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
     if (leftTurn(a,b,c)){
         deque = new Deque("abc".split(""))
     }else{
         deque = new Deque("cba".split(""))
     }
-    console.log(deque.toArray())
-    var items = g_deque.selectAll("g")
+    var items = g_deque.selectAll(".deque-vertex")
         .data(deque.toArray())
         .enter()
         .append("g")
-        .attr("transform", function(d,i){return "translate(" + (i*60) + ",0)"})
+        .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 25)+")"})
         .attr("class", "deque-vertex")
     items.append("rect").attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
     items.append("text")
         .translate(20,20)
         .attr("dy", "5px")
         .text(function(d){ return d})
+    svg_deque.selectAll(".cover").transition()
+        .delay(8000)
+        .duration(1000)
+        .attr("x", function(d,i){
+            return i ? width+margin.right+10 : -(width+margin.right)/2 -10;
+        })
+
 }
 
-g_polygon.on("click", function(){
+svg_polygon.on("click", function(){
     if (freeze) return;
-    var pos = d3.mouse(g_polygon.node());
+    var pos = d3.mouse(svg_polygon.node());
     if (points.length > 0){
         var prev = points[points.length-1]
         if (intersectsAny(prev, pos)){
             return;
         }
-        line(prev, pos);
     }
     point(pos, alphabet[points.length]);
     points.push(pos);
+    line();
     if (points.length === 3) first3();
 })
 
 d3.select("body").on("keydown", function(){
-    if (d3.event.keyCode == 32) console.log("You pressed space!")})
+    if (d3.event.keyCode == 32){
+        switch (state){
+            case 1:
+                revealDeque();
+            break;
+            default:
+        }
+    }
+})

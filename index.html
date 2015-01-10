@@ -4,6 +4,16 @@
         <link rel="stylesheet" type="text/css" href="melkman.css">
     </head>
     <body>
+        <svg id=deque></svg>
+        <div class=leftside>
+            <h1>Melkman's Algorithm</h1>
+            <h2>Visualized by Max Goldstein</h2>
+        </div>
+        <svg id=polygon></svg>
+        <div class=leftside id="text">
+            <p>Melkman's algorithm finds the <strong>convex hull</strong> of a polygon. If you wrapped a rubber band around a polygon and let it snap tight, you'd have the convex hull, which is one of the foundations of computational geometry. Melkman's algorithm is interesting because it works in linear time; finding the convex hull of a point set (rather than a polygon) takes O(n log n) time.</p>
+            <p>To start, make a polygon by placing points in the canvas to the right.</p>
+        </div>
         <script src="d3.v3.js" charset="utf-8"></script>
         <script src="bundle.js"></script>
     </body>

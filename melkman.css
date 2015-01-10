@@ -3,9 +3,40 @@ body {
     background-color: #FDFCFA;
 }
 
-text {
-    text-anchor: middle;
+svg {
+    float: right;
+}
+
+text, h1, h2, p {
+    /* It's the same for SVG and HTML! */
     font-family: avenir, open-sans, sans-serif;
+}
+
+h1, h2 {
+    text-align: center;
+    font-weight: normal;
+    margin: 0;
+}
+
+p {
+    margin: 32px 20px;
+}
+
+h1 { font-size: 36px; }
+h2 { font-size: 18px; }
+
+text {
+    text-anchor: middle; /* SVG */
+}
+
+.leftside {
+    margin-top: 15px;
+    width: 400px;
+}
+
+.cover {
+    fill: #FDFCFA;
+    stroke: none;
 }
 
 .graph-vertex circle {
@@ -25,7 +56,7 @@ text {
     fill: white;
 }
 
-line, polyline, rect {
+line, polyline, rect, path {
     fill: none;
     stroke: black;
     stroke-width: 2;
@@ -33,6 +64,7 @@ line, polyline, rect {
 
 line.err {
     stroke: red;
+    stroke-width: 4;
 }
 
 rect.bg {
@@ -40,9 +72,6 @@ rect.bg {
     stroke-width: 1px;
     fill: #FFF;
 }
-
-#title { font-size: 36px; }
-#subtitle { font-size: 18px; }
 
 text.body1 {
     text-anchor: start;
