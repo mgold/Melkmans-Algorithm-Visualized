@@ -39,6 +39,34 @@ text {
     stroke: none;
 }
 
+path.yellow {
+    fill: #FFFF84;
+}
+strong.yellow {
+    background-color: #FFFF84;
+}
+
+path.red {
+    fill: rgb(255, 119, 199);
+}
+strong.red {
+    background-color: rgb(255, 119, 199);
+}
+
+path.blue {
+    fill: rgb(119, 119, 255);
+}
+strong.blue {
+    background-color: rgb(119, 119, 255);
+}
+
+path.purple {
+    fill: rgb(255, 119, 255);
+}
+strong.purple {
+    background-color: rgb(255, 119, 255);
+}
+
 .graph-vertex circle {
     fill: white;
     stroke: black;

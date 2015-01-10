@@ -117,7 +117,7 @@ svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
     .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
     .attr("x", function(d){return d*(width+margin.right)});
 
-var g_region = svg_polygon.append("g"),
+var g_regions = svg_polygon.append("g"),
     g_lines  = svg_polygon.append("g"),
     g_points = svg_polygon.append("g");
 
@@ -138,6 +138,7 @@ function first3(){
 }
 
 function revealDeque(){
+    state++;
     text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
     if (leftTurn(a,b,c)){
@@ -157,13 +158,27 @@ function revealDeque(){
         .attr("dy", "5px")
         .text(function(d){ return d})
     svg_deque.selectAll(".cover").transition()
-        .delay(8000)
         .duration(1000)
         .attr("x", function(d,i){
             return i ? width+margin.right+10 : -(width+margin.right)/2 -10;
         })
-
+        .remove();
 }
+
+function yellowRegion(){
+    state++;
+    text.html(explanations.yellowRegion);
+    g_regions.append("path")
+        .datum(points)
+        .attr("d", line_gen)
+        .attr("class", "yellow")
+}
+
+function rbpRegions(){
+    state++;
+    text.html(explanations.rbpRegions);
+}
+
 
 svg_polygon.on("click", function(){
     if (freeze) return;
@@ -185,6 +200,12 @@ d3.select("body").on("keydown", function(){
         switch (state){
             case 1:
                 revealDeque();
+            break;
+            case 2:
+                yellowRegion();
+            break;
+            case 3:
+                rbpRegions();
             break;
             default:
         }
