@@ -93,18 +93,42 @@ d3.selection.prototype.translate = function(a, b) {
       : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
-var dims = {width: 500, height: 500};
-var svg = d3.select("body").style("margin", 0).append("svg").attr(dims),
-    g_lines = svg.append("g"),
-    g_points = svg.append("g"),
-    g_deque = svg.append("g").translate(20,20);
+var margin = {top: 120, right: 20, bottom: 20, left: 400},
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight - margin.top - margin.bottom;
+
+var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom);
+
+var g_polygon = svg.append("g").translate(margin.left, margin.top);
+g_polygon.append("rect").attr({width: width, height: height, class: "bg"})
+var g_region = g_polygon.append("g"),
+    g_lines  = g_polygon.append("g"),
+    g_points = g_polygon.append("g"),
+    g_deque = svg.append("g").translate(margin.left, 20),
+    g_text  = svg.append("g").translate(10, margin.top + 15);
+g_deque.append("rect").attr({width: width, height: margin.top - 30, class: "bg"})
+
+svg.append("text")
+    .attr("id", "title")
+    .translate(margin.left/2, margin.top/2 - 10)
+    .text("Melkman's Algorithm")
+svg.append("text")
+    .attr("id", "subtitle")
+    .translate(margin.left/2, margin.top/2 + 15)
+    .text("Visualized by Max Goldstein")
+
+var text_big = g_text.append("text")
+                .attr("class", "body1")
+                .text("Start by placing three points on the canvas.")
 
 var points = [];
 var deque;
-var polygonMade = false;
+var freeze = false;
 
-function finishedCircuit(){
-    polygonMade = true;
+function first3(){
+    freeze = true;
     var a = points[0], b = points[1], c = points[2];
     if (leftTurn(a,b,c)){
         deque = new Deque("abc".split(""))
@@ -112,7 +136,7 @@ function finishedCircuit(){
         deque = new Deque("cba".split(""))
     }
     console.log(deque.toArray())
-    var items = g_deque.selectAll("rect")
+    var items = g_deque.selectAll("g")
         .data(deque.toArray())
         .enter()
         .append("g")
@@ -123,32 +147,22 @@ function finishedCircuit(){
         .translate(20,20)
         .attr("dy", "5px")
         .text(function(d){ return d})
-
-
-    /*
-    g_deque.append("polyline")
-        .attr("points", "0,0 10,5 10,95 0,100");
-    g_deque.append("polyline")
-        .attr("points", "40,0 30,5 30,95 40,100");
-    */
 }
 
-svg.on("click", function(){
-    if (polygonMade) return;
-    var pos = d3.mouse(svg.node())
+g_polygon.on("click", function(){
+    if (freeze) return;
+    var pos = d3.mouse(g_polygon.node());
     if (points.length > 0){
         var prev = points[points.length-1]
-        if (dist2(points[0], pos) < 400){ //complete circuit
-            line(prev, points[0])
-            finishedCircuit();
+        if (intersectsAny(prev, pos)){
             return;
-        }else if (intersectsAny(prev, pos)){
-            return;
-        }else{
-            line(prev, pos);
         }
+        line(prev, pos);
     }
-    point(pos, alphabet[points.length])
-    points.push(pos)
-
+    point(pos, alphabet[points.length]);
+    points.push(pos);
+    if (points.length === 3) first3();
 })
+
+d3.select("body").on("keydown", function(){
+    if (d3.event.keyCode == 32) console.log("You pressed space!")})

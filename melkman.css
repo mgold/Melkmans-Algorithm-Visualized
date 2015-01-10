@@ -1,18 +1,28 @@
+body {
+    margin: 0;
+    background-color: #FDFCFA;
+}
+
+text {
+    text-anchor: middle;
+    font-family: avenir, open-sans, sans-serif;
+}
+
 .graph-vertex circle {
     fill: white;
     stroke: black;
 }
 
 .graph-vertex text {
-    text-anchor: middle;
-    font-family: open-sans, sans-serif;
     font-size: 14px;
 }
 
 .deque-vertex text {
-    text-anchor: middle;
-    font-family: open-sans, sans-serif;
     font-size: 18px;
+}
+
+.deque-vertex rect {
+    fill: white;
 }
 
 line, polyline, rect {
@@ -23,4 +33,17 @@ line, polyline, rect {
 
 line.err {
     stroke: red;
+}
+
+rect.bg {
+    stroke: #BDBAB6;
+    stroke-width: 1px;
+    fill: #FFF;
+}
+
+#title { font-size: 36px; }
+#subtitle { font-size: 18px; }
+
+text.body1 {
+    text-anchor: start;
 }
