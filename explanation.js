@@ -5,6 +5,7 @@ function lines(){
 exports.okayStop = lines( "Okay, stop.",
        "Most convex hull algorithms require the entire polygon up front, but Melkman's asks, what can we find out with <em>only three points</em>?",
        "The convex hull of the three points <em>so far</em> is just the triangle they make. But, as we get more points, we may discover that some or all of these edges aren't actually on the hull at all!",
+       "We need a way to store the current hull that can easily be changed to accomodate new information as it arrives.",
        "Hit the <strong>spacebar<strong> to continue."
        );
 
@@ -13,6 +14,16 @@ exports.dequeIntro = lines("Melkman's algorithm uses a <strong>deque</strong>, o
         "The deque uses this property to maintain an invariant. If you read the deque rightward, you will make only right turns. If you read leftward, you will make only left turns.",
         "Spacebar to continue..."
 );
+
+exports.pointC = function(leftTurn){
+    return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. We also keep track of the next next point in on either side.",
+            "We'll say that <strong class=blue>point " +
+            (leftTurn ? "b" : "a" ) +
+            "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
+            (leftTurn ? "a" : "b" ) +
+            "</strong> will be red because it appears to point c's right."
+            )
+}
 
 exports.yellowRegion = lines("Melkman's algorithm now asks, what could happen on the next point? What changes could be required to maintain the deque's invariants? All eyes are on point c, the last to make it on to the hull. Based on it, we draw four regions, and we respond to point d based on which region it falls in.",
         "The <strong class=yellow>yellow</strong> region is the simplest: all points in that region are already within the known hull, so they can't be on it. If point d is in this region, we simply discard it and wait for point e.",

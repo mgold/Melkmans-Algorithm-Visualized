@@ -142,27 +142,60 @@ function revealDeque(){
     text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
     if (leftTurn(a,b,c)){
-        deque = new Deque("abc".split(""))
+        deque = new Deque("cabc".split(""))
     }else{
-        deque = new Deque("cba".split(""))
+        deque = new Deque("cbac".split(""))
     }
     var items = g_deque.selectAll(".deque-vertex")
         .data(deque.toArray())
         .enter()
         .append("g")
         .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 25)+")"})
-        .attr("class", "deque-vertex")
-    items.append("rect").attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
+        .attr("class", "deque-vertex");
+    items.append("rect")
+        .attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
     items.append("text")
         .translate(20,20)
         .attr("dy", "5px")
-        .text(function(d){ return d})
+        .text(function(d){ return d});
     svg_deque.selectAll(".cover").transition()
         .duration(1000)
         .attr("x", function(d,i){
             return i ? width+margin.right+10 : -(width+margin.right)/2 -10;
         })
         .remove();
+}
+
+function pointC(){
+    state++;
+    var a = points[0], b = points[1], c = points[2];
+    var wasLeftTurn = leftTurn(a,b,c);
+    text.html(explanations.pointC(wasLeftTurn));
+    svg_polygon.selectAll(".graph-vertex circle")
+        .transition()
+        .duration(2000)
+        .style("fill", function(d,i){
+                        if (i == 2) { return "#DA54FF"; }
+        })
+        .transition()
+        .style("fill", function(d,i){
+                        if (i == 2) { return "#DA54FF"; }
+                        return (wasLeftTurn ^ i) ? "#FF7777" : "#7777FF" ;
+        });
+
+    svg_deque.selectAll(".deque-vertex rect")
+        .transition()
+        .duration(2000)
+        .style("fill", function(d,i){
+                        if (i == 0 || i == 3) { return "#DA54FF"}
+        })
+        .transition()
+        .style("fill", function(d,i){
+                        if (i == 0 || i == 3) { return "#DA54FF"}
+                        if (i == 1) { return "#FF7777"}
+                        if (i == 2) { return "#7777FF"}
+        });
+
 }
 
 function yellowRegion(){
@@ -178,7 +211,6 @@ function rbpRegions(){
     state++;
     text.html(explanations.rbpRegions);
 }
-
 
 svg_polygon.on("click", function(){
     if (freeze) return;
@@ -202,9 +234,12 @@ d3.select("body").on("keydown", function(){
                 revealDeque();
             break;
             case 2:
-                yellowRegion();
+                pointC();
             break;
             case 3:
+                yellowRegion();
+            break;
+            case 4:
                 rbpRegions();
             break;
             default:
