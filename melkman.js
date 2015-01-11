@@ -6,7 +6,7 @@ function leftTurn(p0, p1, p2){
         b = p1[1] - p0[1],
         c = p2[0] - p1[0],
         d = p2[1] - p1[1];
-    return a*d - b*c > 0.001;
+    return a*d - b*c < -0.001;
 }
 
 function rightTurn(p0, p1, p2){
@@ -14,7 +14,7 @@ function rightTurn(p0, p1, p2){
         b = p1[1] - p0[1],
         c = p2[0] - p1[0],
         d = p2[1] - p1[1];
-    return a*d - b*c < -0.001;
+    return a*d - b*c > 0.001;
 }
 
 function dist2(p0, p1){
@@ -81,7 +81,7 @@ function toBoundary(p0, p1){
     var x = p1[0], y = p1[1],
         dx = x - p0[0],
         dy = y - p0[1];
-    if (x===0 || y===y) return p1;
+    if (x===0 || y===0) return p1;
 
     // left wall
     var k = -x/dx;
@@ -135,6 +135,8 @@ d3.selection.prototype.translate = function(a, b) {
       : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
+var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84";
+
 var margin = {top: 120, right: 20, bottom: 20, left: 400},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
@@ -174,6 +176,7 @@ function first3(){
     freeze = true;
     state = 1;
     text.html(explanations.okayStop)
+    var a = points[0], b = points[1], c = points[2];
 }
 
 function revealDeque(){
@@ -181,9 +184,9 @@ function revealDeque(){
     text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
     if (leftTurn(a,b,c)){
-        deque = new Deque("cabc".split(""))
-    }else{
         deque = new Deque("cbac".split(""))
+    }else{
+        deque = new Deque("cabc".split(""))
     }
     var items = g_deque.selectAll(".deque-vertex")
         .data(deque.toArray())
@@ -214,27 +217,27 @@ function pointC(){
         .transition()
         .duration(2000)
         .style("fill", function(d,i){
-                        if (i == 2) { return "#DA54FF"; }
+                        if (i == 2) { return purple; }
         })
         .transition()
         .delay(3000)
         .style("fill", function(d,i){
-                        if (i == 2) { return "#DA54FF"; }
-                        return (wasLeftTurn ^ i) ? "#FF7777" : "#7777FF" ;
+                        if (i == 2) { return purple; }
+                        return (wasLeftTurn ^ i) ? blue : red;
         });
 
     svg_deque.selectAll(".deque-vertex rect")
         .transition()
         .duration(2000)
         .style("fill", function(d,i){
-                        if (i == 0 || i == 3) { return "#DA54FF"}
+                        if (i == 0 || i == 3) { return purple }
         })
         .transition()
         .delay(3000)
         .style("fill", function(d,i){
-                        if (i == 0 || i == 3) { return "#DA54FF"}
-                        if (i == 1) { return "#FF7777"}
-                        if (i == 2) { return "#7777FF"}
+                        if (i == 0 || i == 3) { return purple }
+                        if (i == 1) { return red }
+                        if (i == 2) { return blue }
         });
 
 }
@@ -245,12 +248,26 @@ function yellowRegion(){
     g_regions.append("path")
         .datum(points)
         .attr("d", line_gen)
-        .style("fill", "#FFFF84")
+        .style("fill", yellow)
 }
 
 function rbpRegions(){
     state++;
     text.html(explanations.rbpRegions);
+    var a = points[0], b = points[1], c = points[2];
+    var wasLeftTurn = leftTurn(a,b,c);
+    if (wasLeftTurn){
+        console.log("It was a left turn")
+        var b0 = toBoundary(points[2], points[0]),
+            b1 = toBoundary(points[1], points[2]),
+            outline = [b0, points[2], b1, corner(b0, b1)];
+        console.log(outline)
+        g_regions.append("path")
+            .datum(outline)
+            .attr("d", line_gen)
+            .style("fill",blue)
+            .style("stroke", "none")
+    }
 }
 
 svg_polygon.on("click", function(){
@@ -278,10 +295,10 @@ d3.select("body").on("keydown", function(){
                 pointC();
             break;
             case 3:
-                yellowRegion();
+                rbpRegions();
             break;
             case 4:
-                rbpRegions();
+                yellowRegion();
             break;
             default:
         }

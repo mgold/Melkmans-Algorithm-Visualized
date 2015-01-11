@@ -18,9 +18,9 @@ exports.dequeIntro = lines("Melkman's algorithm uses a <strong>deque</strong>, o
 exports.pointC = function(leftTurn){
     return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. We also keep track of the next next point in on either side.",
             "We'll say that <strong class=blue>point " +
-            (leftTurn ? "b" : "a" ) +
-            "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
             (leftTurn ? "a" : "b" ) +
+            "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
+            (leftTurn ? "b" : "a" ) +
             "</strong> will be red because it appears to point c's right.",
             "We use the two points on either end of the deque to define regions of where the next point could land, and what we'll have to do in each case."
             )
