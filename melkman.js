@@ -76,6 +76,45 @@ function intersectsAny(p0, p1){
     return ret;
 }
 
+// Proceeding from p0 to p1, what point on the canvas boundary do you hit?
+function toBoundary(p0, p1){
+    var x = p1[0], y = p1[1],
+        dx = x - p0[0],
+        dy = y - p0[1];
+    if (x===0 || y===y) return p1;
+
+    // left wall
+    var k = -x/dx;
+    var h = y + dy*k;
+    if (k > 0 && h >= 0) return [0, h];
+
+    // top wall
+    var k = -y/dy;
+    var w = x + dx*k;
+    if (k > 0 && w >= 0) return [w, 0];
+
+    // right wall
+    var k = (width-x)/dx;
+    var h = y + dy*k;
+    if (k > 0 && h <= height) return [0, h];
+
+    // top wall
+    var k = (height-y)/dy;
+    var w = x + dx*k;
+    if (k > 0 && w <= width) return [w, 0];
+
+    console.warn("toBoundary found unsatisfactory result for", p0, p1);
+    return p1;
+}
+
+// Given two points on the boundary, find the corner where the edges meet
+function corner(b0, b1){
+    var x = b0[0] < 10 ? b0[0] : b1[0],
+        y = b0[1] < 10 ? b0[1] : b1[1]
+
+    return [x,y]
+}
+
 var line_gen = d3.svg.line();
 function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
@@ -178,6 +217,7 @@ function pointC(){
                         if (i == 2) { return "#DA54FF"; }
         })
         .transition()
+        .delay(3000)
         .style("fill", function(d,i){
                         if (i == 2) { return "#DA54FF"; }
                         return (wasLeftTurn ^ i) ? "#FF7777" : "#7777FF" ;
@@ -190,6 +230,7 @@ function pointC(){
                         if (i == 0 || i == 3) { return "#DA54FF"}
         })
         .transition()
+        .delay(3000)
         .style("fill", function(d,i){
                         if (i == 0 || i == 3) { return "#DA54FF"}
                         if (i == 1) { return "#FF7777"}
@@ -204,7 +245,7 @@ function yellowRegion(){
     g_regions.append("path")
         .datum(points)
         .attr("d", line_gen)
-        .attr("class", "yellow")
+        .style("fill", "#FFFF84")
 }
 
 function rbpRegions(){

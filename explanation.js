@@ -21,7 +21,8 @@ exports.pointC = function(leftTurn){
             (leftTurn ? "b" : "a" ) +
             "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
             (leftTurn ? "a" : "b" ) +
-            "</strong> will be red because it appears to point c's right."
+            "</strong> will be red because it appears to point c's right.",
+            "We use the two points on either end of the deque to define regions of where the next point could land, and what we'll have to do in each case."
             )
 }
 
@@ -30,7 +31,7 @@ exports.yellowRegion = lines("Melkman's algorithm now asks, what could happen on
         "Go ahead and place a point in the yellow region."
 );
 
-exports.rbpRegions = lines("We now symetrically extent the boundaries of the hull, looking on each end of the deque.",
+exports.rbpRegions = lines("We now symetrically extend the boundaries of the hull, looking on each end of the deque.",
         "A sharp left turn puts us in the <strong class=blue>blue</strong> region. A left turn could violate the invariant on the right side of the deque, where we should be making a right turn.",
         "Similarly, a sharp right turn puts us in the <strong class=red>red</strong> region. And if we go into the <strong class=purple>purple</strong> region, we may need to worry about both ends of the deque.",
         "Place a point in one of these regions and we'll figure out what we have to do."
