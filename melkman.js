@@ -96,23 +96,60 @@ function toBoundary(p0, p1){
     // right wall
     var k = (width-x)/dx;
     var h = y + dy*k;
-    if (k > 0 && h <= height) return [0, h];
+    if (k > 0 && h <= height) return [width, h];
 
     // top wall
     var k = (height-y)/dy;
     var w = x + dx*k;
-    if (k > 0 && w <= width) return [w, 0];
+    if (k > 0 && w <= width) return [w, height];
 
     console.warn("toBoundary found unsatisfactory result for", p0, p1);
     return p1;
 }
 
-// Given two points on the boundary, find the corner where the edges meet
+// Given two points on adjacent boundary edges, find the corner where the edges meet
+// TODO return an array of points to accomodate b0 = top b1 = bottom
 function corner(b0, b1){
-    var x = b0[0] < 10 ? b0[0] : b1[0],
-        y = b0[1] < 10 ? b0[1] : b1[1]
+    // And this is _after_ refactoring...
+    var top = 0, right = 1, bottom = 2, left = 3;
+    var s0, s1;
 
-    return [x,y]
+    if (b0[0]===0){
+        s0 = left;
+    }else if (b0[0]===width){
+        s0 = right;
+    }else if (b0[1]===0){
+        s0 = top;
+    }else if (b0[1]===height){
+        s0 = bottom;
+    }
+    if (b1[0]===0){
+        s1 = left;
+    }else if (b1[0]===width){
+        s1 = right;
+    }else if (b1[1]===0){
+        s1 = top;
+    }else if (b1[1]===height){
+        s1 = bottom;
+    }
+    console.log(s0, s1)
+
+
+    var s2 = Math.min(s0, s1),
+        s3 = Math.max(s0, s1)
+
+    if (s2===top && s3==right){
+        return [width, 0]
+    }else if (s2==right && s3===bottom){
+        return [width, height]
+    }else if (s2==bottom && s3===left){
+        return [0, height]
+    }else if (s2==top && s3===left){
+        return [0, 0]
+    }
+
+    console.warn("toBoundary found unsatisfactory result for", b0, b1);
+    return [0,0]
 }
 
 var line_gen = d3.svg.line();
@@ -140,6 +177,8 @@ var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84";
 var margin = {top: 120, right: 20, bottom: 20, left: 400},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
+
+console.log("width", width, "height", height);
 
 var svg_deque = d3.select("#deque")
             .attr("width", width + margin.right)
@@ -266,6 +305,26 @@ function rbpRegions(){
             .datum(outline)
             .attr("d", line_gen)
             .style("fill",blue)
+            .style("stroke", "none")
+
+            b0 = toBoundary(points[2], points[1]),
+            b1 = toBoundary(points[0], points[2]),
+            outline = [b0, points[2], b1, corner(b0, b1)]
+        console.log(outline)
+        g_regions.append("path")
+            .datum(outline)
+            .attr("d", line_gen)
+            .style("fill", red)
+            .style("stroke", "none")
+
+            b0 = toBoundary(points[1], points[2]),
+            b1 = toBoundary(points[0], points[2]),
+            outline = [b0, points[2], b1]
+        console.log(outline)
+        g_regions.append("path")
+            .datum(outline)
+            .attr("d", line_gen)
+            .style("fill", purple)
             .style("stroke", "none")
     }
 }
