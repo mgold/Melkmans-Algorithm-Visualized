@@ -107,49 +107,39 @@ function toBoundary(p0, p1){
     return p1;
 }
 
-// Given two points on adjacent boundary edges, find the corner where the edges meet
-// TODO return an array of points to accomodate b0 = top b1 = bottom
-function corner(b0, b1){
-    // And this is _after_ refactoring...
+// Given two points on boundary edges, return an array of points of the
+// corners hit traveling clockwise
+function corners(b0, b1){
     var top = 0, right = 1, bottom = 2, left = 3;
-    var s0, s1;
 
-    if (b0[0]===0){
-        s0 = left;
-    }else if (b0[0]===width){
-        s0 = right;
-    }else if (b0[1]===0){
-        s0 = top;
-    }else if (b0[1]===height){
-        s0 = bottom;
+    sideOf = function(b){
+        if (b[0]===0){
+            return left;
+        }else if (b[0]===width){
+            return right;
+        }else if (b[1]===0){
+            return top;
+        }else if (b[1]===height){
+            return bottom;
+        }else{
+            console.warn("corners called with non-boundary point", b)
+        }
     }
-    if (b1[0]===0){
-        s1 = left;
-    }else if (b1[0]===width){
-        s1 = right;
-    }else if (b1[1]===0){
-        s1 = top;
-    }else if (b1[1]===height){
-        s1 = bottom;
-    }
+
+    var s0 = sideOf(b0), s1 = sideOf(b1);
     console.log(s0, s1)
 
+    var cornerPoints = [[width,0], [width, height], [0,height], [0,0]];
+    ret = []
 
-    var s2 = Math.min(s0, s1),
-        s3 = Math.max(s0, s1)
-
-    if (s2===top && s3==right){
-        return [width, 0]
-    }else if (s2==right && s3===bottom){
-        return [width, height]
-    }else if (s2==bottom && s3===left){
-        return [0, height]
-    }else if (s2==top && s3===left){
-        return [0, 0]
+    while (s0 != s1){
+        console.log(s0);
+        ret.push(cornerPoints[s0])
+        s0++;
+        s0 %= 4;
     }
 
-    console.warn("toBoundary found unsatisfactory result for", b0, b1);
-    return [0,0]
+    return ret;
 }
 
 var line_gen = d3.svg.line();
@@ -299,7 +289,7 @@ function rbpRegions(){
         console.log("It was a left turn")
         var b0 = toBoundary(points[2], points[0]),
             b1 = toBoundary(points[1], points[2]),
-            outline = [b0, points[2], b1, corner(b0, b1)];
+            outline = [b0, points[2], b1].concat(corners(b0, b1));
         console.log(outline)
         g_regions.append("path")
             .datum(outline)
@@ -307,9 +297,9 @@ function rbpRegions(){
             .style("fill",blue)
             .style("stroke", "none")
 
-            b0 = toBoundary(points[2], points[1]),
-            b1 = toBoundary(points[0], points[2]),
-            outline = [b0, points[2], b1, corner(b0, b1)]
+            b0 = toBoundary(points[0], points[2]),
+            b1 = toBoundary(points[2], points[1]),
+            outline = [b1, points[2], b0].concat(corners(b0, b1));
         console.log(outline)
         g_regions.append("path")
             .datum(outline)
