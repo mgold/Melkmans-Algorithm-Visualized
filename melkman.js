@@ -1,5 +1,16 @@
 var Deque = require("collections/deque")
+var GrahamScan = require("graham_scan/graham_scan")
 var explanations = require("./explanation")
+
+function convexHull(pts){
+    var gs = new GrahamScan();
+    pts.forEach(function(p){
+        gs.addPoint(p[0], p[1]);
+    })
+    return gs.getHull().map(function(p){
+        return [p.x, p.y];
+    })
+}
 
 function leftTurn(p0, p1, p2){
     var a = p1[0] - p0[0],
@@ -86,22 +97,22 @@ function toBoundary(p0, p1){
     // left wall
     var k = -x/dx;
     var h = y + dy*k;
-    if (k > 0 && h >= 0) return [0, h];
+    if (k > 0 && h >= 0 && h <= height) return [0, h];
 
     // top wall
     var k = -y/dy;
     var w = x + dx*k;
-    if (k > 0 && w >= 0) return [w, 0];
+    if (k > 0 && w >= 0 && w <= width) return [w, 0];
 
     // right wall
     var k = (width-x)/dx;
     var h = y + dy*k;
-    if (k > 0 && h <= height) return [width, h];
+    if (k > 0 && h >= 0 && h <= height) return [width, h];
 
     // top wall
     var k = (height-y)/dy;
     var w = x + dx*k;
-    if (k > 0 && w <= width) return [w, height];
+    if (k > 0 && w >= 0 && w <= width) return [w, height];
 
     console.warn("toBoundary found unsatisfactory result for", p0, p1);
     return p1;
@@ -127,13 +138,11 @@ function corners(b0, b1){
     }
 
     var s0 = sideOf(b0), s1 = sideOf(b1);
-    console.log(s0, s1)
 
     var cornerPoints = [[width,0], [width, height], [0,height], [0,0]];
     ret = []
 
     while (s0 != s1){
-        console.log(s0);
         ret.push(cornerPoints[s0])
         s0++;
         s0 %= 4;
@@ -289,7 +298,7 @@ function rbpRegions(){
         console.log("It was a left turn")
         var b0 = toBoundary(points[2], points[0]),
             b1 = toBoundary(points[1], points[2]),
-            outline = [b0, points[2], b1].concat(corners(b0, b1));
+            outline = convexHull([b0, points[2], b1].concat(corners(b0, b1)));
         console.log(outline)
         g_regions.append("path")
             .datum(outline)
@@ -299,7 +308,7 @@ function rbpRegions(){
 
             b0 = toBoundary(points[0], points[2]),
             b1 = toBoundary(points[2], points[1]),
-            outline = [b1, points[2], b0].concat(corners(b0, b1));
+            outline = convexHull([b1, points[2], b0].concat(corners(b0, b1)));
         console.log(outline)
         g_regions.append("path")
             .datum(outline)
@@ -309,7 +318,7 @@ function rbpRegions(){
 
             b0 = toBoundary(points[1], points[2]),
             b1 = toBoundary(points[0], points[2]),
-            outline = [b0, points[2], b1]
+            outline = convexHull([b0, points[2], b1].concat(corners(b0,b1)))
         console.log(outline)
         g_regions.append("path")
             .datum(outline)
