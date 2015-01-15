@@ -11,28 +11,27 @@ exports.okayStop = lines( "Okay, stop.",
 
 exports.dequeIntro = lines("Melkman's algorithm uses a <strong>deque</strong>, or double-ended queue, to solve this problem. The deque always contains the hull of the points we know about. It is efficient to read or modify either end of the deque. Its contents are now shown above.",
         "One property of convex polygons (like the hull we're trying to find) is that if you travel the vertices in one direction, you make only right turns. If you travel in the opposite direction, you make only left turns.",
-        "The deque uses this property to maintain an invariant. If you read the deque rightward, you will make only right turns. If you read leftward, you will make only left turns.",
+        "The deque uses this property to maintain an invariant. If you read the deque rightward, skipping the gap in the polygon, you will make only right turns. If you read leftward, you will make only left turns.",
         "Spacebar to continue..."
 );
 
 exports.pointC = function(leftTurn){
-    return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. We also keep track of the next next point in on either side.",
+    return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. But the next point in the deque, in each direction, is also important.",
             "We'll say that <strong class=blue>point " +
             (leftTurn ? "a" : "b" ) +
             "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
             (leftTurn ? "b" : "a" ) +
             "</strong> will be red because it appears to point c's right.",
-            "We use the two points on either end of the deque to define regions of where the next point could land, and what we'll have to do in each case."
+            "Right now, the deque is small, so all points matter. Later on, we'll see that we don't need to access points deep in the deque."
             )
 }
 
-exports.yellowRegion = lines("Melkman's algorithm now asks, what could happen on the next point? What changes could be required to maintain the deque's invariants? All eyes are on point c, the last to make it on to the hull. Based on it, we draw four regions, and we respond to point d based on which region it falls in.",
-        "The <strong class=yellow>yellow</strong> region is the simplest: all points in that region are already within the known hull, so they can't be on it. If point d is in this region, we simply discard it and wait for point e.",
-        "Go ahead and place a point in the yellow region."
-);
-
-exports.rbpRegions = lines("We now symetrically extend the boundaries of the hull, looking on each end of the deque.",
+exports.rbpRegions = lines("Looking at those two outermost points on each side of the deque, we extend the lines they form to create regions, based on where point d could land.",
         "A sharp left turn puts us in the <strong class=blue>blue</strong> region. A left turn could violate the invariant on the right side of the deque, where we should be making a right turn.",
         "Similarly, a sharp right turn puts us in the <strong class=red>red</strong> region. And if we go into the <strong class=purple>purple</strong> region, we may need to worry about both ends of the deque.",
-        "Place a point in one of these regions and we'll figure out what we have to do."
+        "If point d is in any of these regions, it will be on the convex hull (of points seen thusfar) and we must modify the deque."
 );
+
+exports.yellowRegion = lines("But point d could also land within the known hull requiring no changes to the deque. This is the <strong class=yellow>yellow</strong> region. If point d lands here, we simply discard it and wait for point e.",
+        "Finally, the remaining <strong class=white>white</strong> region is only accessible from point c by crossing an existing polygon edge. Melkman's algorithm assumes the polygon is <strong>simple</strong>, meaning that its edges don't intersect like that. It's this knowledge that allows the algorithm to operate in linear time.",
+        "Notice how the four permissible regions meet at point c, the last point added to the hull. We can determine which region we land in from the turn direction of lines <em>acd</em> and <em>bcd</em>. Thus, the regions are illustrative only, and do not need to be calculated explicitly.");

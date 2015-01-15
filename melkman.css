@@ -55,6 +55,10 @@ strong.purple {
     background-color: rgb(218, 84, 255);
 }
 
+strong.white {
+    background-color: white;
+}
+
 .graph-vertex circle {
     fill: white;
     stroke: black;

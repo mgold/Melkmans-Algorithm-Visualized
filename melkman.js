@@ -280,40 +280,47 @@ function pointC(){
 
 }
 
-function yellowRegion(){
-    state++;
-    text.html(explanations.yellowRegion);
-    g_regions.append("path")
-        .datum(points)
-        .attr("d", line_gen)
-        .style("fill", yellow)
-}
-
 function rbpRegions(){
     state++;
     text.html(explanations.rbpRegions);
     var a = points[0], b = points[1], c = points[2];
     var wasLeftTurn = leftTurn(a,b,c);
-    var region = function(color, i1, i2, i3, i4){
+    var transitionLen = 1200;
+    var region = function(order, color, i1, i2, i3, i4){
         var b0 = toBoundary(points[i1], points[i2]),
             b1 = toBoundary(points[i3], points[i4]),
             outline = convexHull([b0, points[2], b1].concat(corners(b0, b1)));
         g_regions.append("path")
             .datum(outline)
             .attr("d", line_gen)
-            .style("fill", color)
             .style("stroke", "none")
+              .style("fill", "white")
+          .transition()
+            .duration(transitionLen)
+            .delay(order*transitionLen)
+            .style("fill", color)
     }
-
     if (wasLeftTurn){
-        region(blue,   2,0,1,2);
-        region(red,    0,2,2,1);
-        region(purple, 1,2,0,2);
+        region(0, blue,   2,0,1,2);
+        region(1, red,    0,2,2,1);
+        region(2, purple, 1,2,0,2);
     }else{
-        region(blue,   2,1,0,2);
-        region(red,    1,2,2,0);
-        region(purple, 0,2,1,2);
+        region(0, blue,   2,1,0,2);
+        region(1, red,    1,2,2,0);
+        region(2, purple, 0,2,1,2);
     }
+}
+
+function yellowRegion(){
+    state++;
+    text.html(explanations.yellowRegion);
+    g_regions.append("path")
+        .datum(points)
+        .attr("d", line_gen)
+        .style("fill", "white")
+      .transition()
+        .duration(1200)
+        .style("fill", yellow)
 }
 
 svg_polygon.on("click", function(){
