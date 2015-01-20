@@ -156,11 +156,11 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
-function point(p, letter){
+function point(p){
     var g = g_points.append("g").attr("class", "graph-vertex").translate(p)
     g.append("circle")
         .attr("r", 10)
-    if (letter) g.append("text").text(letter).attr("dy", "4px")
+    if (p.s) g.append("text").text(p.s).attr("dy", "4px")
 }
 
 var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -204,7 +204,7 @@ g_lines.append("path").attr("id", "path_poly");
 g_lines.append("path").attr("id", "path_hull");
 
 var points = [];
-var deque;
+var deque, last_on_hull;
 var freeze = false;
 var state = 0;
 
@@ -221,13 +221,14 @@ function revealDeque(){
     state++;
     text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
+    last_on_hull = c;
     if (leftTurn(a,b,c)){
-        deque = new Deque("cbac".split(""))
+        deque = new Deque([b,a])
     }else{
-        deque = new Deque("cabc".split(""))
+        deque = new Deque([a,b])
     }
     var items = g_deque.selectAll(".deque-vertex")
-        .data(deque.toArray())
+        .data([c].concat(deque.toArray(), [c]))
         .enter()
         .append("g")
         .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 25)+")"})
@@ -237,7 +238,7 @@ function revealDeque(){
     items.append("text")
         .translate(20,20)
         .attr("dy", "5px")
-        .text(function(d){ return d});
+        .text(function(d){ return d.s});
     svg_deque.selectAll(".cover").transition()
         .duration(1000)
         .attr("x", function(d,i){
@@ -313,6 +314,7 @@ function rbpRegions(){
 
 function yellowRegion(){
     state++;
+    freeze = false;
     text.html(explanations.yellowRegion);
     g_regions.append("path")
         .datum(points)
@@ -332,7 +334,8 @@ svg_polygon.on("click", function(){
             return;
         }
     }
-    point(pos, alphabet[points.length]);
+    pos.s = alphabet[points.length];
+    point(pos);
     points.push(pos);
     line();
     if (points.length === 3) first3();
