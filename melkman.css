@@ -59,12 +59,17 @@ strong.white {
     background-color: white;
 }
 
-.graph-vertex circle {
+.hull-vertex circle {
     fill: white;
     stroke: black;
 }
 
-.graph-vertex text {
+.interior-vertex circle {
+    fill: black;
+    stroke: none;
+}
+
+.hull-vertex text {
     font-size: 14px;
 }
 

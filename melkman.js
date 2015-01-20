@@ -156,11 +156,18 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
-function point(p){
-    var g = g_points.append("g").attr("class", "graph-vertex").translate(p)
+function hull_point(p){
+    var g = g_points.append("g").attr("class", "hull-vertex").translate(p)
     g.append("circle")
         .attr("r", 10)
     if (p.s) g.append("text").text(p.s).attr("dy", "4px")
+    return g;
+}
+
+function interior_point(p){
+    var g = g_points.append("g").attr("class", "interior-vertex").translate(p)
+    g.append("circle").attr("r", 4)
+    return g;
 }
 
 var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -191,7 +198,9 @@ d3.selectAll("svg").append("rect")
     .attr({width: width-2, x: 1, y: 1, class: "bg"})
     .attr("height", function(d,i){return i ? height : margin.top - 30})
 
-var g_deque = svg_deque.append("g");
+var g_deque = svg_deque.append("g")
+    .attr("transform", "translate("+((width - 60*4)/2)+",0)");
+
 svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
     .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
     .attr("x", function(d){return d*(width+margin.right)});
@@ -204,9 +213,10 @@ g_lines.append("path").attr("id", "path_poly");
 g_lines.append("path").attr("id", "path_hull");
 
 var points = [];
-var deque, last_on_hull;
+var deque, lastOnHull;
 var freeze = false;
 var state = 0;
+var initalLeftTurn;
 
 var text = d3.select("#text");
 
@@ -221,24 +231,13 @@ function revealDeque(){
     state++;
     text.html(explanations.dequeIntro);
     var a = points[0], b = points[1], c = points[2];
-    last_on_hull = c;
+    lastOnHull = c;
     if (leftTurn(a,b,c)){
         deque = new Deque([b,a])
     }else{
         deque = new Deque([a,b])
     }
-    var items = g_deque.selectAll(".deque-vertex")
-        .data([c].concat(deque.toArray(), [c]))
-        .enter()
-        .append("g")
-        .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 25)+")"})
-        .attr("class", "deque-vertex");
-    items.append("rect")
-        .attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
-    items.append("text")
-        .translate(20,20)
-        .attr("dy", "5px")
-        .text(function(d){ return d.s});
+    renderDeque();
     svg_deque.selectAll(".cover").transition()
         .duration(1000)
         .attr("x", function(d,i){
@@ -247,12 +246,33 @@ function revealDeque(){
         .remove();
 }
 
+function renderDeque(){
+    g_deque.transition().duration(750)
+        .attr("transform", "translate("+((width - 60*(deque.length+2))/2)+",0)")
+    var items = g_deque.selectAll(".deque-vertex")
+        .data([lastOnHull].concat(deque.toArray(), [lastOnHull]))
+    console.log(items.data())
+    var entering = items.enter().append("g");
+    entering.append("rect")
+        .attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
+    entering.append("text")
+        .translate(20,20)
+        .attr("dy", "5px")
+    items.select("text").text(function(d){ return d.s});
+    items.attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
+        .attr("class", "deque-vertex");
+}
+
 function pointC(){
     state++;
     var a = points[0], b = points[1], c = points[2];
-    var wasLeftTurn = leftTurn(a,b,c);
-    text.html(explanations.pointC(wasLeftTurn));
-    svg_polygon.selectAll(".graph-vertex circle")
+    initialLeftTurn = leftTurn(a,b,c);
+    text.html(explanations.pointC(initialLeftTurn));
+    renderFills();
+}
+
+function renderFills(){
+    svg_polygon.selectAll(".hull-vertex circle")
         .transition()
         .duration(2000)
         .style("fill", function(d,i){
@@ -262,7 +282,7 @@ function pointC(){
         .delay(3000)
         .style("fill", function(d,i){
                         if (i == 2) { return purple; }
-                        return (wasLeftTurn ^ i) ? blue : red;
+                        return (initialLeftTurn ^ i) ? blue : red;
         });
 
     svg_deque.selectAll(".deque-vertex rect")
@@ -278,14 +298,11 @@ function pointC(){
                         if (i == 1) { return red }
                         if (i == 2) { return blue }
         });
-
 }
 
 function rbpRegions(){
     state++;
     text.html(explanations.rbpRegions);
-    var a = points[0], b = points[1], c = points[2];
-    var wasLeftTurn = leftTurn(a,b,c);
     var transitionLen = 1200;
     var region = function(order, color, i1, i2, i3, i4){
         var b0 = toBoundary(points[i1], points[i2]),
@@ -301,7 +318,7 @@ function rbpRegions(){
             .delay(order*transitionLen)
             .style("fill", color)
     }
-    if (wasLeftTurn){
+    if (initialLeftTurn){
         region(0, blue,   2,0,1,2);
         region(1, red,    0,2,2,1);
         region(2, purple, 1,2,0,2);
@@ -325,6 +342,40 @@ function yellowRegion(){
         .style("fill", yellow)
 }
 
+function newPoint(pos){
+    freeze = true;
+    var red = rightTurn(deque.peek(), lastOnHull, pos);
+    var blue = leftTurn(deque.peekBack(), lastOnHull, pos);
+    console.log("red:", red, "blue:", blue)
+
+    if (!red && !blue){
+        interior_point(pos);
+        points.push(pos);
+        line();
+        text.html(explanations.pointInYellow);
+        freeze = false;
+    }
+    if (red && !blue){
+        hull_point(pos);
+        points.push(pos);
+        line();
+        text.html(explanations.pointInRed);
+        state = 20;
+        deque.push(lastOnHull);
+        var leftEdge = lastOnHull;
+        console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
+        while (rightTurn(deque.peek(), leftEdge, pos)){
+            leftEdge = deque.shift();
+        }
+        deque.unshift(leftEdge);
+        lastOnHull = pos;
+        console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
+        renderDeque();
+        //renderFills();
+    }
+
+}
+
 svg_polygon.on("click", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
@@ -335,7 +386,8 @@ svg_polygon.on("click", function(){
         }
     }
     pos.s = alphabet[points.length];
-    point(pos);
+    if (points.length >= 3) return newPoint(pos);
+    hull_point(pos);
     points.push(pos);
     line();
     if (points.length === 3) first3();

@@ -16,7 +16,7 @@ exports.dequeIntro = lines("Melkman's algorithm uses a <strong>deque</strong>, o
 );
 
 exports.pointC = function(leftTurn){
-    return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. But the next point in the deque, in each direction, is also important.",
+    return lines("<strong class=purple>Point c</strong> appears on both ends of the deque because it was the last point added to the hull. This is an invariant we want to maintain. But the next point in the deque, in each direction, is also important.",
             "We'll say that <strong class=blue>point " +
             (leftTurn ? "a" : "b" ) +
             "</strong> will be blue because it appears to point c's left. Notice that this means it appears on the right side of the deque. Similarly, <strong class=red> point " +
@@ -32,6 +32,14 @@ exports.rbpRegions = lines("Looking at those two outermost points on each side o
         "If point d is in any of these regions, it will be on the convex hull (of points seen thusfar) and we must modify the deque."
 );
 
-exports.yellowRegion = lines("But point d could also land within the known hull requiring no changes to the deque. This is the <strong class=yellow>yellow</strong> region. If point d lands here, we simply discard it and wait for point e.",
+exports.yellowRegion = lines("But point d could also land within the known hull requiring no changes to the deque. This is the <strong class=yellow>yellow</strong> region. If point d lands here, we simply discard it and wait for the next point.",
         "Finally, the remaining <strong class=white>white</strong> region is only accessible from point c by crossing an existing polygon edge. Melkman's algorithm assumes the polygon is <strong>simple</strong>, meaning that its edges don't intersect like that. It's this knowledge that allows the algorithm to operate in linear time.",
         "Notice how the four permissible regions meet at point c, the last point added to the hull. We can determine which region we land in from the turn direction of lines <em>acd</em> and <em>bcd</em>. Thus, the regions are illustrative only, and do not need to be calculated explicitly.");
+
+exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
+        "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out."
+        );
+
+exports.pointInRed = lines("You've placed a point in the <strong class=red>red</strong> region. We need to look at the left side of the deque, but first, we can go ahead and push this point to the right side, because we know it will keep the right turn invariant.",
+        "We now need to pop from the left side of the deqeue until reading leftwards corresponds to making only left turns."
+        );
