@@ -306,30 +306,36 @@ function renderFills(){
 function rbpRegions(){
     state++;
     text.html(explanations.rbpRegions);
-    var transitionLen = 1200;
-    var region = function(order, color, i1, i2, i3, i4){
-        var b0 = toBoundary(points[i1], points[i2]),
-            b1 = toBoundary(points[i3], points[i4]),
-            outline = convexHull([b0, points[2], b1].concat(corners(b0, b1)));
+    renderRBPregions();
+}
+
+function renderRBPregions(){
+    var transitionOutLen = 200;
+    var transitionInLen = 300; // 1200?
+    g_regions.selectAll("path.region").transition().duration(transitionOutLen)
+        .style("fill", "white")
+        .remove();
+    var region = function(order, color, p1, p2, p3, p4){
+        var b0 = toBoundary(p1, p2),
+            b1 = toBoundary(p3, p4),
+            outline = convexHull([b0, lastOnHull, b1].concat(corners(b0, b1)));
         g_regions.append("path")
             .datum(outline)
             .attr("d", line_gen)
+            .attr("class", "region")
             .style("stroke", "none")
               .style("fill", "white")
           .transition()
-            //.duration(transitionLen)
-            //.delay(order*transitionLen)
+            .duration(transitionInLen)
+            .delay(order*transitionInLen + transitionOutLen)
             .style("fill", color)
     }
-    if (initialLeftTurn){
-        region(0, blue,   2,0,1,2);
-        region(1, red,    0,2,2,1);
-        region(2, purple, 1,2,0,2);
-    }else{
-        region(0, blue,   2,1,0,2);
-        region(1, red,    1,2,2,0);
-        region(2, purple, 0,2,1,2);
-    }
+    var p_r = deque.peek();
+    var p_b = deque.peekBack();
+    var p_p = lastOnHull;
+    region(0, blue,   p_p, p_b, p_r, p_p);
+    region(1, red,    p_b, p_p, p_p, p_r);
+    region(2, purple, p_r, p_p, p_b, p_p);
 }
 
 function yellowRegion(){
@@ -375,6 +381,8 @@ function newPoint(pos){
         console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
         renderDeque();
         renderFills();
+        renderRBPregions();
+        freeze = false;
     }
 
 }
