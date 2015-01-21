@@ -157,10 +157,9 @@ function line(){
 }
 
 function hull_point(p){
-    var g = g_points.append("g").attr("class", "hull-vertex").translate(p)
-    g.append("circle")
-        .attr("r", 10)
-    if (p.s) g.append("text").text(p.s).attr("dy", "4px")
+    var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
+    g.append("circle").attr("r", 10);
+    if (p.s){ g.append("text").text(p.s).attr("dy", "4px"); }
     return g;
 }
 
@@ -251,7 +250,6 @@ function renderDeque(){
         .attr("transform", "translate("+((width - 60*(deque.length+2))/2)+",0)")
     var items = g_deque.selectAll(".deque-vertex")
         .data([lastOnHull].concat(deque.toArray(), [lastOnHull]))
-    console.log(items.data())
     var entering = items.enter().append("g");
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
@@ -274,29 +272,34 @@ function pointC(){
 function renderFills(){
     svg_polygon.selectAll(".hull-vertex circle")
         .transition()
-        .duration(2000)
+        //.duration(2000)
         .style("fill", function(d,i){
-                        if (i == 2) { return purple; }
+                        console.log(d, lastOnHull);
+                        if (d.s === lastOnHull.s) { return purple; }
         })
         .transition()
-        .delay(3000)
-        .style("fill", function(d,i){
-                        if (i == 2) { return purple; }
-                        return (initialLeftTurn ^ i) ? blue : red;
+        //.delay(3000)
+        .style("fill", function(d){
+                        if (d.s === lastOnHull.s) { return purple; }
+                        if (d.s === deque.peek().s) { return red; }
+                        if (d.s === deque.peekBack().s) { return blue; }
+                        return "white";
         });
 
+    var last;
     svg_deque.selectAll(".deque-vertex rect")
+        .call(function(s){last = s.size()-1})
         .transition()
-        .duration(2000)
+        //.duration(2000)
         .style("fill", function(d,i){
-                        if (i == 0 || i == 3) { return purple }
+                        if (i == 0 || i == last) { return purple }
         })
         .transition()
-        .delay(3000)
+        //.delay(3000)
         .style("fill", function(d,i){
-                        if (i == 0 || i == 3) { return purple }
+                        if (i == 0 || i == last) { return purple }
                         if (i == 1) { return red }
-                        if (i == 2) { return blue }
+                        if (i == last-1) { return blue }
         });
 }
 
@@ -314,8 +317,8 @@ function rbpRegions(){
             .style("stroke", "none")
               .style("fill", "white")
           .transition()
-            .duration(transitionLen)
-            .delay(order*transitionLen)
+            //.duration(transitionLen)
+            //.delay(order*transitionLen)
             .style("fill", color)
     }
     if (initialLeftTurn){
@@ -338,7 +341,7 @@ function yellowRegion(){
         .attr("d", line_gen)
         .style("fill", "white")
       .transition()
-        .duration(1200)
+        //.duration(1200)
         .style("fill", yellow)
 }
 
@@ -371,7 +374,7 @@ function newPoint(pos){
         lastOnHull = pos;
         console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
         renderDeque();
-        //renderFills();
+        renderFills();
     }
 
 }
