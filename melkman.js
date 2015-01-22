@@ -373,6 +373,7 @@ function newPoint(pos){
     var blue = leftTurn(deque.peekBack(), lastOnHull, pos);
     console.log("red:", red, "blue:", blue)
 
+    // TODO: Fix code duplication
     if (!red && !blue){
         interior_point(pos);
         points.push(pos);
@@ -381,6 +382,7 @@ function newPoint(pos){
         renderYellowRegion();
         freeze = false;
     }
+
     if (red && !blue){
         hull_point(pos);
         points.push(pos);
@@ -393,6 +395,50 @@ function newPoint(pos){
             leftEdge = deque.shift();
         }
         deque.unshift(leftEdge);
+        lastOnHull = pos;
+        renderDeque();
+        renderFills();
+        renderRBPregions();
+        renderYellowRegion();
+        freeze = false;
+    }
+
+    if (!red && blue){
+        hull_point(pos);
+        points.push(pos);
+        line();
+        text.html(explanations.pointInBlue);
+        state = 30;
+        deque.unshift(lastOnHull);
+        var rightEdge = lastOnHull;
+        while (leftTurn(deque.peekBack(), rightEdge, pos)){
+            rightEdge = deque.pop();
+        }
+        deque.push(rightEdge);
+        lastOnHull = pos;
+        renderDeque();
+        renderFills();
+        renderRBPregions();
+        renderYellowRegion();
+        freeze = false;
+    }
+
+    if (red && blue){
+        hull_point(pos);
+        points.push(pos);
+        line();
+        text.html(explanations.pointInPurple);
+        state = 30;
+        var leftEdge = lastOnHull;
+        while (rightTurn(deque.peek(), leftEdge, pos)){
+            leftEdge = deque.shift();
+        }
+        deque.unshift(leftEdge);
+        var rightEdge = lastOnHull;
+        while (leftTurn(deque.peekBack(), rightEdge, pos)){
+            rightEdge = deque.pop();
+        }
+        deque.push(rightEdge);
         lastOnHull = pos;
         renderDeque();
         renderFills();
