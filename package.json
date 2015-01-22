@@ -4,7 +4,10 @@
   "description": "Visualization of Melkman's algorithm",
   "main": "melkman.js",
   "dependencies": {
-    "collections": "^1.2.1"
+    "collections": "^1.2.1",
+    "convex-hull": "^1.0.3",
+    "quick-hull-2d": "^0.1.0",
+    "vishull2d": "^0.1.0"
   },
   "devDependencies": {
     "watchify": "^2.2.1"

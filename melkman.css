@@ -39,6 +39,10 @@ text {
     stroke: none;
 }
 
+.region {
+    stroke: none;
+}
+
 strong.yellow {
     background-color: #FFFF84;
 }

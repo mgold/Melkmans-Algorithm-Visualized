@@ -1,15 +1,21 @@
 var Deque = require("collections/deque")
-var GrahamScan = require("graham_scan/graham_scan")
+var convexHull = require("quick-hull-2d")
+var _visibility = require("vishull2d")
 var explanations = require("./explanation")
 
-function convexHull(pts){
-    var gs = new GrahamScan();
-    pts.forEach(function(p){
-        gs.addPoint(p[0], p[1]);
-    })
-    return gs.getHull().map(function(p){
-        return [p.x, p.y];
-    })
+function visibility(pts, cen){
+    // convert vertex chain to line segments
+    var segments = [
+        [[0,0], [0,height]],
+        [[0,height], [width,height]],
+        [[width,height], [width, 0]],
+        [[width, 0], [0,0]] ]
+    for (var i = 0; i < pts.length; ++i) {
+        var j = i+1;
+        if (j == pts.length) j = 0;
+        segments.push([pts[i], pts[j]]);
+    }
+    return _visibility(segments, cen);
 }
 
 function leftTurn(p0, p1, p2){
@@ -204,7 +210,8 @@ svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
     .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
     .attr("x", function(d){return d*(width+margin.right)});
 
-var g_regions = svg_polygon.append("g"),
+var g_yellow = svg_polygon.append("g"),
+    g_regions = svg_polygon.append("g"),
     g_lines  = svg_polygon.append("g"),
     g_points = svg_polygon.append("g");
 
@@ -274,7 +281,6 @@ function renderFills(){
         .transition()
         //.duration(2000)
         .style("fill", function(d,i){
-                        console.log(d, lastOnHull);
                         if (d.s === lastOnHull.s) { return purple; }
         })
         .transition()
@@ -323,8 +329,7 @@ function renderRBPregions(){
             .datum(outline)
             .attr("d", line_gen)
             .attr("class", "region")
-            .style("stroke", "none")
-              .style("fill", "white")
+            .style("fill", "white")
           .transition()
             .duration(transitionInLen)
             .delay(order*transitionInLen + transitionOutLen)
@@ -342,10 +347,21 @@ function yellowRegion(){
     state++;
     freeze = false;
     text.html(explanations.yellowRegion);
-    g_regions.append("path")
-        .datum(points)
+    renderYellowRegion();
+}
+
+function renderYellowRegion(){
+    var transitionOutLen = 200;
+    var transitionInLen = 300; // 1200?
+    g_yellow.selectAll("path").transition().duration(transitionOutLen)
+        .style("fill", "white")
+        .remove();
+
+    g_yellow.append("path")
+        .datum(visibility(points, points[points.length-1]))
         .attr("d", line_gen)
         .style("fill", "white")
+        .attr("class", "region")
       .transition()
         //.duration(1200)
         .style("fill", yellow)
@@ -362,6 +378,7 @@ function newPoint(pos){
         points.push(pos);
         line();
         text.html(explanations.pointInYellow);
+        renderYellowRegion();
         freeze = false;
     }
     if (red && !blue){
@@ -372,16 +389,15 @@ function newPoint(pos){
         state = 20;
         deque.push(lastOnHull);
         var leftEdge = lastOnHull;
-        console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
         while (rightTurn(deque.peek(), leftEdge, pos)){
             leftEdge = deque.shift();
         }
         deque.unshift(leftEdge);
         lastOnHull = pos;
-        console.log(leftEdge.s, deque.toArray().map(function(p){return p.s}), lastOnHull);
         renderDeque();
         renderFills();
         renderRBPregions();
+        renderYellowRegion();
         freeze = false;
     }
 
