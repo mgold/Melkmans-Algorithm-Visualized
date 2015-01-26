@@ -4,6 +4,25 @@ var _visibility = require("vishull2d")
 var intersect = require("segseg")
 var explanations = require("./explanation")
 
+//extend the deque to support peeking at the second item on either end
+Deque.prototype.peek2 = function () {
+    if (this.length < 2) {
+        console.warn("Deque too small to peek2", this.toArray())
+        return;
+    }
+    var index = (this.front + 1) & (this.capacity - 1);
+    return this[index];
+};
+
+Deque.prototype.peekBack2 = function () {
+    if (this.length < 2) {
+        console.warn("Deque too small to peekBack2", this.toArray())
+        return;
+    }
+    var index = (this.front + this.length - 2) & (this.capacity - 1);
+    return this[index];
+};
+
 function visibility(pts, cen){
     // convert vertex chain to line segments
     var segments = [
@@ -334,7 +353,6 @@ function newPoint(pos){
     var blue = leftTurn(deque.peekBack(), lastOnHull, pos);
     console.log("red:", red, "blue:", blue)
 
-    // TODO: Fix code duplication
     if (!red && !blue){
         interiorPoint(pos);
         points.push(pos);
@@ -342,40 +360,20 @@ function newPoint(pos){
         text.html(explanations.pointInYellow);
         renderYellowRegion();
         freeze = false;
-    }
-
-    if (red && !blue){
+    }else{
         hullPoint(pos);
         points.push(pos);
         line();
         text.html(explanations.pointInRed);
         state = 20;
         deque.push(lastOnHull);
-        var leftEdge = lastOnHull;
-        while (rightTurn(deque.peek(), leftEdge, pos)){
-            leftEdge = deque.shift();
-        }
-        deque.unshift(leftEdge);
-        lastOnHull = pos;
-        renderDeque();
-        renderFills();
-        renderRBPregions();
-        renderYellowRegion();
-        freeze = false;
-    }
-
-    if (!red && blue){
-        hullPoint(pos);
-        points.push(pos);
-        line();
-        text.html(explanations.pointInBlue);
-        state = 30;
         deque.unshift(lastOnHull);
-        var rightEdge = lastOnHull;
-        while (leftTurn(deque.peekBack(), rightEdge, pos)){
-            rightEdge = deque.pop();
+        while (rightTurn(deque.peek2(), deque.peek(), pos)){
+            console.log("unshifting", deque.shift());
         }
-        deque.push(rightEdge);
+        while (leftTurn(deque.peekBack2(), deque.peekBack(), pos)){
+            console.log("popping", deque.pop());
+        }
         lastOnHull = pos;
         renderDeque();
         renderFills();
@@ -383,31 +381,6 @@ function newPoint(pos){
         renderYellowRegion();
         freeze = false;
     }
-
-    if (red && blue){
-        hullPoint(pos);
-        points.push(pos);
-        line();
-        text.html(explanations.pointInPurple);
-        state = 30;
-        var leftEdge = lastOnHull;
-        while (rightTurn(deque.peek(), leftEdge, pos)){
-            leftEdge = deque.shift();
-        }
-        deque.unshift(leftEdge);
-        var rightEdge = lastOnHull;
-        while (leftTurn(deque.peekBack(), rightEdge, pos)){
-            rightEdge = deque.pop();
-        }
-        deque.push(rightEdge);
-        lastOnHull = pos;
-        renderDeque();
-        renderFills();
-        renderRBPregions();
-        renderYellowRegion();
-        freeze = false;
-    }
-
 }
 
 svg_polygon.on("click", function(){
