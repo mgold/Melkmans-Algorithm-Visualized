@@ -123,14 +123,14 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
-function hull_point(p){
+function hullPoint(p){
     var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
     g.append("circle").attr("r", 10);
     if (p.s){ g.append("text").text(p.s).attr("dy", "4px"); }
     return g;
 }
 
-function interior_point(p){
+function interiorPoint(p){
     var g = g_points.append("g").attr("class", "interior-vertex").translate(p)
     g.append("circle").attr("r", 4)
     return g;
@@ -336,7 +336,7 @@ function newPoint(pos){
 
     // TODO: Fix code duplication
     if (!red && !blue){
-        interior_point(pos);
+        interiorPoint(pos);
         points.push(pos);
         line();
         text.html(explanations.pointInYellow);
@@ -345,7 +345,7 @@ function newPoint(pos){
     }
 
     if (red && !blue){
-        hull_point(pos);
+        hullPoint(pos);
         points.push(pos);
         line();
         text.html(explanations.pointInRed);
@@ -365,7 +365,7 @@ function newPoint(pos){
     }
 
     if (!red && blue){
-        hull_point(pos);
+        hullPoint(pos);
         points.push(pos);
         line();
         text.html(explanations.pointInBlue);
@@ -385,7 +385,7 @@ function newPoint(pos){
     }
 
     if (red && blue){
-        hull_point(pos);
+        hullPoint(pos);
         points.push(pos);
         line();
         text.html(explanations.pointInPurple);
@@ -421,7 +421,7 @@ svg_polygon.on("click", function(){
     }
     pos.s = alphabet[points.length];
     if (points.length >= 3) return newPoint(pos);
-    hull_point(pos);
+    hullPoint(pos);
     points.push(pos);
     line();
     if (points.length === 3) first3();
