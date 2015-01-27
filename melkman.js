@@ -198,8 +198,9 @@ var g_yellow = svg_polygon.append("g"),
 g_lines.append("path").attr("id", "path_poly");
 g_lines.append("path").attr("id", "path_hull");
 
+// Sin Bin: Global state of the algorithm
 var points = [];
-var deque, lastOnHull;
+var deque, lastOnHull, newPos;
 var freeze = false;
 var state = 0;
 var initalLeftTurn;
@@ -233,19 +234,37 @@ function revealDeque(){
 }
 
 function renderDeque(){
+    var data = lastOnHull ? [lastOnHull].concat(deque.toArray(), [lastOnHull]) : deque.toArray();
+    console.log(data.map(function(d){return d.s}), lastOnHull ? lastOnHull.s : undefined);
     g_deque.transition().duration(750)
-        .attr("transform", "translate("+((width - 60*(deque.length+2))/2)+",0)")
+        .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
     var items = g_deque.selectAll(".deque-vertex")
-        .data([lastOnHull].concat(deque.toArray(), [lastOnHull]))
-    var entering = items.enter().append("g");
+        .data(data, function(d,i){ console.log(d.s,i); return i}); // TODO: better index function
+    var entering = items.enter().append("g").attr("class", "deque-vertex");
     entering.append("rect")
-        .attr({width: "40px", height: "40px", rx: "8px", ry: "8px"})
+        .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
     entering.append("text")
         .translate(20,20)
         .attr("dy", "5px")
-    items.select("text").text(function(d){ return d.s});
-    items.attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
-        .attr("class", "deque-vertex");
+    items.selectAll("text").text(function(d){ return d.s});
+    var exiting = items.exit().transition().duration(1000).ease("cubic");
+    exiting.select("rect").attr({width: 0, height: 0, x: "20px", y: "20px", rx: "0px", ry: "0px"});
+    exiting.select("text").style("font-size", 0).attr("dy", "0px");
+    exiting.remove();
+
+    if (lastOnHull){
+    var lastIndex = items.size() - 1;
+    items.transition()
+        //.delay(3000)
+        .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
+        .select("rect")
+        .style("fill", function(d,i){
+                        if (i == 0 || i == lastIndex) { return purple }
+                        if (i == 1) { return red }
+                        if (i == lastIndex-1) { return blue }
+        });
+    }
+
 }
 
 function pointC(){
@@ -272,21 +291,6 @@ function renderFills(){
                         return "white";
         });
 
-    var last;
-    svg_deque.selectAll(".deque-vertex rect")
-        .call(function(s){last = s.size()-1})
-        .transition()
-        //.duration(2000)
-        .style("fill", function(d,i){
-                        if (i == 0 || i == last) { return purple }
-        })
-        .transition()
-        //.delay(3000)
-        .style("fill", function(d,i){
-                        if (i == 0 || i == last) { return purple }
-                        if (i == 1) { return red }
-                        if (i == last-1) { return blue }
-        });
 }
 
 function rbpRegions(){
@@ -365,21 +369,37 @@ function newPoint(pos){
         points.push(pos);
         line();
         text.html(explanations.pointInRed);
-        state = 20;
         deque.push(lastOnHull);
         deque.unshift(lastOnHull);
-        while (rightTurn(deque.peek2(), deque.peek(), pos)){
-            console.log("unshifting", deque.shift());
-        }
-        while (leftTurn(deque.peekBack2(), deque.peekBack(), pos)){
-            console.log("popping", deque.pop());
-        }
-        lastOnHull = pos;
+        lastOnHull = undefined;
+        state = 20;
+        newPos = pos;
+    }
+}
+
+function fixLeft(){
+    if (rightTurn(deque.peek2(), deque.peek(), newPos)){
+        console.log("unshifting", deque.shift());
+        renderDeque();
+    }else{
+        state = 21;
+        fixRight();
+    }
+}
+
+function fixRight(){
+    if (leftTurn(deque.peekBack2(), deque.peekBack(), newPos)){
+        console.log("popping", deque.pop());
+        renderDeque();
+    }else{
+        lastOnHull = newPos;
+        newPos = undefined;
         renderDeque();
         renderFills();
         renderRBPregions();
         renderYellowRegion();
         freeze = false;
+        state = 5;
     }
 }
 
@@ -414,6 +434,12 @@ d3.select("body").on("keydown", function(){
             break;
             case 4:
                 yellowRegion();
+            break;
+            case 20:
+                fixLeft();
+            break;
+            case 21:
+                fixRight();
             break;
             default:
         }

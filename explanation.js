@@ -32,9 +32,11 @@ exports.rbpRegions = lines("Looking at those two outermost points on each side o
         "If point d is in any of these regions, it will be on the convex hull (of points seen thusfar) and we must modify the deque."
 );
 
-exports.yellowRegion = lines("But point d could also land within the known hull requiring no changes to the deque. This is the <strong class=yellow>yellow</strong> region. If point d lands here, we simply discard it and wait for the next point.",
+exports.yellowRegion = lines("But point d could also land within the known hull, requiring no changes to the deque. This is the <strong class=yellow>yellow</strong> region. If point d lands here, we simply discard it and wait for the next point.",
         "Finally, the remaining <strong class=white>white</strong> region is only accessible from point c by crossing an existing polygon edge. Melkman's algorithm assumes the polygon is <strong>simple</strong>, meaning that its edges don't intersect like that. It's this knowledge that allows the algorithm to operate in linear time.",
-        "Notice how the four permissible regions meet at point c, the last point added to the hull. We can determine which region we land in from the turn direction of lines <em>acd</em> and <em>bcd</em>. Thus, the regions are illustrative only, and do not need to be calculated explicitly.");
+        "Notice how the four permissible regions meet at point c, the last point added to the hull. We can determine which region we land in from the turn direction of lines <em>acd</em> and <em>bcd</em>. Thus, the regions are illustrative only, and do not need to be calculated explicitly.",
+        "Now place point d in one of the colored regions."
+        );
 
 exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
         "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out."
