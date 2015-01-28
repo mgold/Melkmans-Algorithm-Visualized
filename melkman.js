@@ -144,15 +144,30 @@ function line(){
 
 function hullPoint(p){
     var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
-    g.append("circle").attr("r", 10);
-    if (p.s){ g.append("text").text(p.s).attr("dy", "4px"); }
+    g.append("circle").attr("r", 10).style({fill: "white", stroke: "black"})
+    if (p.s){ g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px"); }
     return g;
 }
 
 function interiorPoint(p){
     var g = g_points.append("g").attr("class", "interior-vertex").translate(p)
-    g.append("circle").attr("r", 4)
+    g.append("circle").attr("r", 4).style({fill: "black", stroke: "none"})
     return g;
+}
+
+function hullToInterior(p){
+    var point = g_points.selectAll(".hull-vertex")
+        .filter(function(d){return d.s===p.s})
+        .attr("class", "interior-vertex")
+        .transition();
+    point.select("circle")
+        .attr("r", 4)
+        .style({fill: "black", stroke: "none"})
+    point.select("text")
+        .attr("dy", "0px")
+        .style("font-size", "0px")
+        .remove();
+    // TODO place the letter in the letter queue
 }
 
 var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
@@ -202,6 +217,7 @@ g_lines.append("path").attr("id", "path_hull");
 var points = [];
 var deque, lastOnHull, newPos;
 var freeze = false;
+var popping = false;
 var state = 0;
 var initalLeftTurn;
 
@@ -234,28 +250,38 @@ function revealDeque(){
 }
 
 function renderDeque(){
-    var data = lastOnHull ? [lastOnHull].concat(deque.toArray(), [lastOnHull]) : deque.toArray();
-    console.log(data.map(function(d){return d.s}), lastOnHull ? lastOnHull.s : undefined);
+    var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull]) : deque.toArray();
+    console.log(data.map(function(d){return d.s}), lastOnHull.s);
     g_deque.transition().duration(750)
         .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
     var items = g_deque.selectAll(".deque-vertex")
-        .data(data, function(d,i){ console.log(d.s,i); return i}); // TODO: better index function
-    var entering = items.enter().append("g").attr("class", "deque-vertex");
+        .data(data, function(d,i){
+            if (d.s === lastOnHull.s){
+                return d.s + (i ? 1 : 0);
+            }
+            return d.s;
+        });
+    var entering = items.enter().append("g").attr("class", "deque-vertex")
+        .attr("transform", function(d,i){if (i<items.enter().size()/2){
+            return "translate(-60,"+ (margin.top / 2 - 35)+")"
+        }else{
+            return "translate("+((i+1)*60)+","+(margin.top / 2 - 35)+")"
+        }})
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
     entering.append("text")
         .translate(20,20)
         .attr("dy", "5px")
     items.selectAll("text").text(function(d){ return d.s});
+    items.order();
     var exiting = items.exit().transition().duration(1000).ease("cubic");
     exiting.select("rect").attr({width: 0, height: 0, x: "20px", y: "20px", rx: "0px", ry: "0px"});
     exiting.select("text").style("font-size", 0).attr("dy", "0px");
     exiting.remove();
 
-    if (lastOnHull){
+    if (!popping){
     var lastIndex = items.size() - 1;
     items.transition()
-        //.delay(3000)
         .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
         .select("rect")
         .style("fill", function(d,i){
@@ -264,7 +290,6 @@ function renderDeque(){
                         if (i == lastIndex-1) { return blue }
         });
     }
-
 }
 
 function pointC(){
@@ -371,7 +396,7 @@ function newPoint(pos){
         text.html(explanations.pointInRed);
         deque.push(lastOnHull);
         deque.unshift(lastOnHull);
-        lastOnHull = undefined;
+        popping = true
         state = 20;
         newPos = pos;
     }
@@ -379,7 +404,11 @@ function newPoint(pos){
 
 function fixLeft(){
     if (rightTurn(deque.peek2(), deque.peek(), newPos)){
-        console.log("unshifting", deque.shift());
+        var removed = deque.shift();
+        console.log("shifting", removed);
+        if (removed.s !== lastOnHull.s){
+            hullToInterior(removed);
+        }
         renderDeque();
     }else{
         state = 21;
@@ -389,11 +418,16 @@ function fixLeft(){
 
 function fixRight(){
     if (leftTurn(deque.peekBack2(), deque.peekBack(), newPos)){
-        console.log("popping", deque.pop());
+        var removed = deque.pop();
+        console.log("popping", removed);
+        if (removed.s !== lastOnHull.s){
+            hullToInterior(removed);
+        }
         renderDeque();
     }else{
         lastOnHull = newPos;
         newPos = undefined;
+        popping = false;
         renderDeque();
         renderFills();
         renderRBPregions();
