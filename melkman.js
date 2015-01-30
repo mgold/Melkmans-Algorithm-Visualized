@@ -390,10 +390,16 @@ function newPoint(pos){
         renderYellowRegion();
         freeze = false;
     }else{
+        if (red && !blue){
+            text.html(explanations.pointInRed);
+        }else if (!red && blue){
+            text.html(explanations.pointInBlue);
+        }else{
+            text.html(explanations.pointInPurple);
+        }
         hullPoint(pos);
         points.push(pos);
         line();
-        text.html(explanations.pointInRed);
         deque.push(lastOnHull);
         deque.unshift(lastOnHull);
         popping = true
@@ -425,6 +431,7 @@ function fixRight(){
         }
         renderDeque();
     }else{
+        text.html(explanations.donePopping)
         lastOnHull = newPos;
         newPos = undefined;
         popping = false;

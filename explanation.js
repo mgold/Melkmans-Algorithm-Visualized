@@ -42,14 +42,16 @@ exports.pointInYellow = lines("You've placed a point in the <strong class=yellow
         "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out."
         );
 
-exports.pointInRed = lines("You've placed a point in the <strong class=red>red</strong> region. We need to look at the left side of the deque, but first, we can go ahead and push this point to the right side, because we know it will keep the right turn invariant.",
-        "We now need to pop from the left side of the deqeue until reading leftwards corresponds to making only left turns."
+exports.pointInRed = lines("You've placed a point in the <strong class=red>red</strong> region. We now need to pop from the left side of the deqeue until reading leftwards once again corresponds to making only left turns."
         );
 
-exports.pointInBlue = lines("You've placed a point in the <strong class=blue>blue</strong> region. We need to look at the right side of the deque, but first, we can go ahead and push this point to the left side, because we know it will keep the left turn invariant.",
-        "We now need to pop from the right side of the deqeue until reading rightwards corresponds to making only right turns."
+exports.pointInBlue = lines("You've placed a point in the <strong class=blue>blue</strong> region. We now need to pop from the right side of the deqeue until reading rightwards onece again corresponds to making only right turns."
         );
 
-exports.pointInPurple = lines("You've placed a point in the <strong class=purple>purple</strong> region. We need to look at the both sides of the deque. In fact, the purple region is just the composition of the red and blue regions!",
-        "We pop from both sides of the deque to restore the order invariant."
+exports.pointInPurple = lines("You've placed a point in the <strong class=purple>purple</strong> region, which is just the composition of the red and blue regions!",
+        "We pop from both sides of the deque (starting on the left) to restore the order invariant."
+        );
+
+exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
+        "The new deque is once again the convex hull of the known points. Now it's time to add another one!"
         );
