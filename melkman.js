@@ -157,6 +157,7 @@ function interiorPoint(p){
 }
 
 function hullToInterior(p){
+    alphabet.push(p.s);
     var point = g_points.selectAll(".hull-vertex")
         .filter(function(d){return d.s===p.s})
         .attr("class", "interior-vertex")
@@ -171,7 +172,7 @@ function hullToInterior(p){
     // TODO place the letter in the letter queue
 }
 
-var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""))
 
 d3.selection.prototype.translate = function(a, b) {
   return arguments.length == 1
@@ -455,7 +456,7 @@ svg_polygon.on("click", function(){
             return;
         }
     }
-    pos.s = alphabet[points.length];
+    pos.s = alphabet.shift();
     if (points.length >= 3) return newPoint(pos);
     hullPoint(pos);
     points.push(pos);
