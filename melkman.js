@@ -255,8 +255,10 @@ function renderDeque(){
     var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
                         : [newPos].concat(deque.toArray(), [newPos])
     console.log(data.map(function(d){return d.s}), lastOnHull.s, newPos && newPos.s);
-    g_deque.transition().duration(750)
-        .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
+    if (!popping){
+        g_deque.transition().duration(1750)
+            .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
+    }
     var items = g_deque.selectAll(".deque-vertex")
         .data(data, function(d,i){
             if (newPos && d.s === newPos.s) return d.s + (i < data.length/2 ? 0 : 1);
@@ -264,11 +266,7 @@ function renderDeque(){
             return d.s;
         });
     var entering = items.enter().append("g").attr("class", "deque-vertex")
-        .attr("transform", function(d,i){if (i<items.enter().size()/2){
-            return "translate(-60,"+ (margin.top / 2 - 35)+")"
-        }else{
-            return "translate("+((i+1)*60)+","+(margin.top / 2 - 35)+")"
-        }})
+        .attr("transform", function(d,i){ return "translate("+((i-1)*60)+","+(margin.top / 2 - 35)+")" })
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
         .style("fill", gray)
@@ -281,6 +279,19 @@ function renderDeque(){
     exiting.select("rect").attr({width: 0, height: 0, x: "20px", y: "20px", rx: "0px", ry: "0px"});
     exiting.select("text").style("font-size", 0).attr("dy", "0px");
     exiting.remove();
+    var lastIndex;
+    exiting.each("end", function(){
+        g_deque.selectAll(".deque-vertex")
+            //.filter(function(d,i){ return (state == 21 && i == 0) || (state == 20 && i != 0 && d.s == newPos.s); })
+            .call(function(){lastIndex = this.size() - 1;})
+            .transition()
+            .attr("transform", function(d,i){
+                var transform = d3.transform(d3.select(this).attr("transform"));
+                if (state == 20 && i != 0) transform.translate[0] -= 60;
+                if (state == 21 && i != lastIndex) transform.translate[0] += 60;
+                return transform.toString();
+            })
+    })
 
     if (!popping){
     var lastIndex = items.size() - 1;
@@ -408,6 +419,7 @@ function newPoint(pos){
         deque.unshift(lastOnHull);
         popping = true
         state = 20;
+        renderDeque();
     }
 }
 
