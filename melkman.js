@@ -144,7 +144,8 @@ function line(){
 
 function hullPoint(p){
     var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
-    g.append("circle").attr("r", 10).style({fill: "white", stroke: "black"})
+    var fill = newPos && p.s == newPos.s ? gray : "white";
+    g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
     if (p.s){ g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px"); }
     return g;
 }
@@ -178,7 +179,7 @@ d3.selection.prototype.translate = function(a, b) {
       : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
-var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84";
+var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
 
 var margin = {top: 120, right: 20, bottom: 20, left: 400},
     width = window.innerWidth - margin.left - margin.right,
@@ -250,15 +251,15 @@ function revealDeque(){
 }
 
 function renderDeque(){
-    var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull]) : deque.toArray();
-    console.log(data.map(function(d){return d.s}), lastOnHull.s);
+    var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
+                        : [newPos].concat(deque.toArray(), [newPos])
+    console.log(data.map(function(d){return d.s}), lastOnHull.s, newPos && newPos.s);
     g_deque.transition().duration(750)
         .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
     var items = g_deque.selectAll(".deque-vertex")
         .data(data, function(d,i){
-            if (d.s === lastOnHull.s){
-                return d.s + (i ? 1 : 0);
-            }
+            if (newPos && d.s === newPos.s) return d.s + (i < data.length/2 ? 0 : 1);
+            if (d.s === lastOnHull.s) return d.s + (i < data.length/2 ? 0 : 1);
             return d.s;
         });
     var entering = items.enter().append("g").attr("class", "deque-vertex")
@@ -269,6 +270,7 @@ function renderDeque(){
         }})
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
+        .style("fill", gray)
     entering.append("text")
         .translate(20,20)
         .attr("dy", "5px")
@@ -397,6 +399,7 @@ function newPoint(pos){
         }else{
             text.html(explanations.pointInPurple);
         }
+        newPos = pos;
         hullPoint(pos);
         points.push(pos);
         line();
@@ -404,7 +407,6 @@ function newPoint(pos){
         deque.unshift(lastOnHull);
         popping = true
         state = 20;
-        newPos = pos;
     }
 }
 
