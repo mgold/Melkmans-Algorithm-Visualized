@@ -203,6 +203,11 @@ d3.selectAll("svg").append("rect")
 var g_deque = svg_deque.append("g")
     .attr("transform", "translate("+((width - 60*4)/2)+",0)");
 
+var arrows = g_deque.append("line")
+    .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
+    .translate(0, 75)
+    .style("stroke", gray)
+
 svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
     .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
     .attr("x", function(d){return d*(width+margin.right)});
@@ -282,7 +287,6 @@ function renderDeque(){
     var lastIndex;
     exiting.each("end", function(){
         g_deque.selectAll(".deque-vertex")
-            //.filter(function(d,i){ return (state == 21 && i == 0) || (state == 20 && i != 0 && d.s == newPos.s); })
             .call(function(){lastIndex = this.size() - 1;})
             .transition()
             .attr("transform", function(d,i){
@@ -292,6 +296,15 @@ function renderDeque(){
                 return transform.toString();
             })
     })
+
+    if (state == 20){
+        arrows.attr("display", null).translate(-60, 75);
+    }else if (state == 21){
+        var x = d3.transform(items.filter(function(d,i){return i==items.size()-1}).attr("transform")).translate[0];
+        arrows.attr("display", null).translate(x-120, 75);
+    }else{
+        arrows.attr("display", "none");
+    }
 
     if (!popping){
     var lastIndex = items.size() - 1;
@@ -427,13 +440,15 @@ function fixLeft(){
     if (rightTurn(deque.peek2(), deque.peek(), newPos)){
         var removed = deque.shift();
         console.log("shifting", removed);
-        if (removed.s !== lastOnHull.s){
+        if (removed.s !== deque.peekBack().s){
             hullToInterior(removed);
         }
         renderDeque();
     }else{
         state = 21;
-        fixRight();
+        renderDeque();
+        // text to explain how we don't need to look at right side if red region
+        // possibly do fixRight if we're popping from right
     }
 }
 
@@ -441,7 +456,7 @@ function fixRight(){
     if (leftTurn(deque.peekBack2(), deque.peekBack(), newPos)){
         var removed = deque.pop();
         console.log("popping", removed);
-        if (removed.s !== lastOnHull.s){
+        if (removed.s !== deque.peek().s){
             hullToInterior(removed);
         }
         renderDeque();
@@ -450,12 +465,12 @@ function fixRight(){
         lastOnHull = newPos;
         newPos = undefined;
         popping = false;
+        state = 5;
         renderDeque();
         renderFills();
         renderRBPregions();
         renderYellowRegion();
         freeze = false;
-        state = 5;
     }
 }
 
