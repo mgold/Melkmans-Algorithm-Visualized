@@ -161,10 +161,10 @@ function hullToInterior(p){
     var point = g_points.selectAll(".hull-vertex")
         .filter(function(d){return d.s===p.s})
         .attr("class", "interior-vertex")
-        .transition();
+        .transition().duration(1100);
     point.select("circle")
         .attr("r", 4)
-        .style({fill: "black", stroke: "none"})
+        .style({fill: "black", stroke: "0px"})
     point.select("text")
         .attr("dy", "0px")
         .style("font-size", "0px")
@@ -282,7 +282,7 @@ function renderDeque(){
         .attr("dy", "5px")
     items.selectAll("text").text(function(d){ return d.s});
     items.order();
-    var exiting = items.exit().transition().duration(1000).ease("cubic");
+    var exiting = items.exit().transition().duration(800).ease("cubic");
     exiting.select("rect").attr({width: 0, height: 0, x: "20px", y: "20px", rx: "0px", ry: "0px"});
     exiting.select("text").style("font-size", 0).attr("dy", "0px");
     exiting.remove();
