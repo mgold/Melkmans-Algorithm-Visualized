@@ -261,7 +261,7 @@ function renderDeque(){
                         : [newPos].concat(deque.toArray(), [newPos])
     console.log(data.map(function(d){return d.s}), lastOnHull.s, newPos && newPos.s);
     if (!popping){
-        g_deque.transition().duration(1750)
+        g_deque.transition().duration(750)
             .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
     }
     var items = g_deque.selectAll(".deque-vertex")
@@ -271,10 +271,12 @@ function renderDeque(){
             return d.s;
         });
     var entering = items.enter().append("g").attr("class", "deque-vertex")
-        .attr("transform", function(d,i){ return "translate("+((i-1)*60)+","+(margin.top / 2 - 35)+")" })
+        .attr("transform", function(d,i){
+            var j = state == 2 ? i : i - 1;
+            return "translate("+(j*60)+","+(margin.top / 2 - 35)+")" })
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
-        .style("fill", gray)
+        .style("fill", state == 2 ? "white" : gray)
     entering.append("text")
         .translate(20,20)
         .attr("dy", "5px")
@@ -306,15 +308,16 @@ function renderDeque(){
         arrows.attr("display", "none");
     }
 
-    if (!popping){
+    if (!popping && state > 2){
     var lastIndex = items.size() - 1;
     items.transition()
         .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
         .select("rect")
         .style("fill", function(d,i){
-                        if (i == 0 || i == lastIndex) { return purple }
-                        if (i == 1) { return red }
-                        if (i == lastIndex-1) { return blue }
+                        if (i == 0 || i == lastIndex) { return purple; }
+                        if (i == 1) { return red; }
+                        if (i == lastIndex-1) { return blue; }
+                        return "white";
         });
     }
 }
@@ -322,9 +325,10 @@ function renderDeque(){
 function pointC(){
     state++;
     var a = points[0], b = points[1], c = points[2];
-    initialLeftTurn = leftTurn(a,b,c);
+    var initialLeftTurn = leftTurn(a,b,c);
     text.html(explanations.pointC(initialLeftTurn));
     renderFills();
+    renderDeque();
 }
 
 function renderFills(){
