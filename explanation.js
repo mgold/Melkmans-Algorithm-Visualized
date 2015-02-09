@@ -45,12 +45,18 @@ exports.pointInYellow = lines("You've placed a point in the <strong class=yellow
 exports.pointInRed = lines("You've placed a point in the <strong class=red>red</strong> region. We now need to pop from the left side of the deqeue until reading leftwards once again corresponds to making only left turns."
         );
 
-exports.pointInBlue = lines("You've placed a point in the <strong class=blue>blue</strong> region. We now need to pop from the right side of the deqeue until reading rightwards onece again corresponds to making only right turns."
+exports.pointInBlue = lines("Since the point was placed in the blue region, we now need to pop from the right side of the deqeue until reading rightwards once again corresponds to making only right turns."
         );
 
 exports.pointInPurple = lines("You've placed a point in the <strong class=purple>purple</strong> region, which is just the composition of the red and blue regions!",
         "We pop from both sides of the deque (starting on the left) to restore the order invariant."
         );
+
+exports.redRight = lines("Since the point was placed in the red region, the right side of the deque does not need to be modified.",
+        "In a real implementation, the algorithm would pop until these three points form a right turn when read rightward. The red region tells us humans that they already form a right turn.")
+
+exports.blueLeft = lines("You've placed a point in the <strong class=blue>blue</strong> region. This means that the left side of the deque does not need to be modified.",
+        "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The red region tells us humans that they already form a left turn.")
 
 exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
         "The new deque is once again the convex hull of the known points. Now it's time to add another one!"

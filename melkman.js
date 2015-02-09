@@ -226,7 +226,6 @@ var deque, lastOnHull, newPos;
 var freeze = false;
 var popping = false;
 var state = 0;
-var initalLeftTurn;
 
 var text = d3.select("#text");
 
@@ -424,7 +423,7 @@ function newPoint(pos){
         if (red && !blue){
             text.html(explanations.pointInRed);
         }else if (!red && blue){
-            text.html(explanations.pointInBlue);
+            text.html(explanations.blueLeft);
         }else{
             text.html(explanations.pointInPurple);
         }
@@ -451,8 +450,14 @@ function fixLeft(){
     }else{
         state = 21;
         renderDeque();
-        // text to explain how we don't need to look at right side if red region
-        // possibly do fixRight if we're popping from right
+        if (leftTurn(deque.peekBack2(), deque.peekBack(), newPos)){
+            if (text.text().indexOf("purple") == -1){
+                text.html(explanations.pointInBlue);
+            }
+            fixRight();
+        }else{
+            text.html(explanations.redRight);
+        }
     }
 }
 
