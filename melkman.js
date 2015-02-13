@@ -54,6 +54,12 @@ function rightTurn(p0, p1, p2){
     return a*d - b*c > 0.001;
 }
 
+function dist2(p0, p1){
+    var dx = p1[0] - p0[0],
+        dy = p1[1] - p0[1];
+    return (dx*dx) + (dy*dy);
+}
+
 function intersectsAny(p0, p1){
     var ret = false;
     g_lines.selectAll(".err").remove();
@@ -218,7 +224,7 @@ var g_yellow = svg_polygon.append("g"),
     g_points = svg_polygon.append("g");
 
 g_lines.append("path").attr("id", "path_poly");
-g_lines.append("path").attr("id", "path_hull");
+//g_lines.append("path").attr("id", "path_hull");
 
 // Sin Bin: Global state of the algorithm
 var points = [];
@@ -483,6 +489,17 @@ function fixRight(){
     }
 }
 
+function finalize(){
+    state = 30;
+    freeze = true;
+    text.html(explanations.finished)
+    points.push(points[0]);
+    line();
+    svg_polygon.selectAll("path.region").transition().duration(500)
+        .style("fill", "white")
+        .remove();
+}
+
 svg_polygon.on("click", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
@@ -493,7 +510,13 @@ svg_polygon.on("click", function(){
         }
     }
     pos.s = alphabet.shift();
-    if (points.length >= 3) return newPoint(pos);
+    if (points.length >= 3){
+        if (dist2(pos, points[0]) < 600){
+            return finalize();
+        }else{
+            return newPoint(pos);
+        }
+    }
     hullPoint(pos);
     points.push(pos);
     line();

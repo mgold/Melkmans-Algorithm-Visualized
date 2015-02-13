@@ -4,7 +4,7 @@ function lines(){
 
 exports.okayStop = lines( "Okay, stop.",
        "Most convex hull algorithms require the entire polygon up front, but Melkman's asks, what can we find out with <em>only three points</em>?",
-       "The convex hull of the three points <em>so far</em> is just the triangle they make. But, as we get more points, we may discover that some or all of these edges aren't actually on the hull at all!",
+       "The convex hull of the three points <em>so far</em> is just the triangle they make. But, as we get more points, we may discover that some or all of these edges aren't actually on the hull at all! It's possible these points are deep in a pocket, but we won't know until we see more of the polygon.",
        "We need a way to store the current hull that can easily be changed to accomodate new information as it arrives.",
        "Hit the <strong>spacebar<strong> to continue."
        );
@@ -59,5 +59,11 @@ exports.blueLeft = lines("You've placed a point in the <strong class=blue>blue</
         "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The red region tells us humans that they already form a left turn.")
 
 exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
-        "The new deque is once again the convex hull of the known points. Now it's time to add another one!"
+        "The new deque is once again the convex hull of the known points. Now it's time to add another one!",
+        "When you're ready, click the first point you placed to complete the polygon. You'll need an unobstructed line of sight to do so."
+        );
+
+exports.finished = lines("Now that we've seen the last point on the polygon, take a moment to read the deque while also tracing the same points on the polygon. You'll notice that it is indeed the convex hull, as it has been all along.",
+        "Melkman's algorithm is <strong>online</strong>, meaning that it always has the answer for the data is has seen so far, without requiring any additional processing. Online algorithms have practical value when the data is too big to fit into memory or suffers from network latency. They also lend themselves to visualization, because the audience (that's you) can interact, predict, and respond to the dynamic presentation.",
+        "Because each point was added and removed from the deque at most twice (once on each end), the algorithm has taken linear time."
         );
