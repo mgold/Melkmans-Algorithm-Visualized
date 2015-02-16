@@ -512,6 +512,9 @@ svg_polygon.on("click", function(){
         if (intersectsAny(prev, pos)){
             return;
         }
+        if (dist2(pos, prev) < 400){
+            return;
+        }
     }
     pos.s = alphabet.shift();
     if (points.length >= 3){
