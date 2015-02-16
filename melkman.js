@@ -489,7 +489,7 @@ function fixRight(){
     }
 }
 
-function finalize(){
+function finished(){
     state = 30;
     freeze = true;
     text.html(explanations.finished)
@@ -498,6 +498,10 @@ function finalize(){
     svg_polygon.selectAll("path.region").transition().duration(500)
         .style("fill", "white")
         .remove();
+}
+function finale(){
+    state = 31;
+    text.html(explanations.finale)
 }
 
 svg_polygon.on("click", function(){
@@ -512,7 +516,7 @@ svg_polygon.on("click", function(){
     pos.s = alphabet.shift();
     if (points.length >= 3){
         if (dist2(pos, points[0]) < 600){
-            return finalize();
+            return finished();
         }else{
             return newPoint(pos);
         }
@@ -545,6 +549,9 @@ d3.select("body").on("keydown", function(){
             break;
             case 21:
                 fixRight();
+            break;
+            case 30:
+                finale();
             break;
             default:
         }
