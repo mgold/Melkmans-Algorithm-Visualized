@@ -524,6 +524,8 @@ svg_polygon.on("click", function(){
 })
 
 d3.select("body").on("keydown", function(){
+    var transitioning = svg_deque.selectAll(".deque-vertex")[0].some(function(node){return !!node.__transition__})
+    if (transitioning) return;
     if (d3.event.keyCode == 32){
         switch (state){
             case 1:
