@@ -5,7 +5,7 @@
   "main": "melkman.js",
   "dependencies": {
     "collections": "^1.2.1",
-    "convex-hull": "^1.0.3",
+    "js-clipper": "^1.0.1",
     "quick-hull-2d": "^0.1.0",
     "segseg": "^0.2.1",
     "vishull2d": "^0.1.0"

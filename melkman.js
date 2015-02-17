@@ -1,10 +1,11 @@
 var Deque = require("collections/deque")
 var convexHull = require("quick-hull-2d")
 var _visibility = require("vishull2d")
-var intersect = require("segseg")
+var lineIntersection = require("segseg")
+var ClipperLib = require("js-clipper")
 var explanations = require("./explanation")
 
-// Prototype extensions and helper functions - interesting code starts around line 150
+// Prototype extensions and helper functions - interesting code starts around line 170
 
 //extend the deque to support peeking at the second item on either end
 Deque.prototype.peek2 = function () {
@@ -31,6 +32,8 @@ d3.selection.prototype.translate = function(a, b) {
       : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
+// Wrapping node library functions - better than writing from scratch
+
 function visibility(pts, cen){
     // convert vertex chain to line segments
     var segments = [
@@ -45,6 +48,21 @@ function visibility(pts, cen){
     }
     return _visibility(segments, cen);
 }
+
+function polygonIntersection(subject, clip){
+    var cpr = new ClipperLib.Clipper(),
+        solution_paths = new ClipperLib.Paths(),
+        subject_fillType = ClipperLib.PolyFillType.pftNonZero,
+        clip_fillType = ClipperLib.PolyFillType.pftNonZero;
+
+    cpr.AddPaths([subject.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptSubject, true);
+    cpr.AddPaths([clip.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptClip, true);
+    cpr.Execute(ClipperLib.ClipType.ctIntersection, solution_paths, subject_fillType, clip_fillType);
+    if (solution_paths.length == 0) return [];
+    return solution_paths[0].map(function(obj){return [obj.X, obj.Y]});
+}
+
+// Geometry helpers
 
 function leftTurn(p0, p1, p2){
     var a = p1[0] - p0[0],
@@ -72,7 +90,7 @@ function intersectsAny(p0, p1){
     var ret = 0;
     g_lines.selectAll(".err").remove();
     for (var i = 0; i < points.length-2; i++){
-        if (intersect(p0, p1, points[i], points[i+1])){
+        if (lineIntersection(p0, p1, points[i], points[i+1])){
             ret++;
             var q0 = points[i], q1 = points[i+1];
             g_lines.append("line")
@@ -374,10 +392,12 @@ function renderRBPregions(){
     g_regions.selectAll("path.region").transition().duration(transitionOutLen)
         .style("fill", "white")
         .remove();
+    var visible = visibility(points, points[points.length-1]);
     var region = function(order, color, p1, p2, p3, p4){
         var b0 = toBoundary(p1, p2),
             b1 = toBoundary(p3, p4),
-            outline = convexHull([b0, lastOnHull, b1].concat(corners(b0, b1)));
+            regionOutline = convexHull([b0, lastOnHull, b1].concat(corners(b0, b1)));
+            outline = polygonIntersection(visible, regionOutline);
         g_regions.append("path")
             .datum(outline)
             .attr("d", line_gen)
@@ -434,6 +454,7 @@ function newPoint(pos){
         line();
         text.html(explanations.pointInYellow);
         renderYellowRegion();
+        renderRBPregions();
         freeze = false;
     }else{
         if (red && !blue){

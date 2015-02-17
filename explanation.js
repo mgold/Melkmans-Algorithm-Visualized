@@ -46,7 +46,7 @@ exports.nonsimple = function(n){
     )}
 
 exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
-        "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out."
+        "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out, because the yellow region does not have a line of sight to all the other regions."
         );
 
 exports.pointInRed = lines("You've placed a point in the <strong class=red>red</strong> region. We now need to pop from the left side of the deqeue until reading leftwards once again corresponds to making only left turns."
