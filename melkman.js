@@ -4,6 +4,8 @@ var _visibility = require("vishull2d")
 var intersect = require("segseg")
 var explanations = require("./explanation")
 
+// Prototype extensions and helper functions - interesting code starts around line 150
+
 //extend the deque to support peeking at the second item on either end
 Deque.prototype.peek2 = function () {
     if (this.length < 2) {
@@ -21,6 +23,12 @@ Deque.prototype.peekBack2 = function () {
     }
     var index = (this.front + this.length - 2) & (this.capacity - 1);
     return this[index];
+};
+
+d3.selection.prototype.translate = function(a, b) {
+  return arguments.length == 1
+      ? this.attr("transform", "translate(" + a + ")")
+      : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
 function visibility(pts, cen){
@@ -143,6 +151,8 @@ function corners(b0, b1){
     return ret;
 }
 
+// Polygon drawing
+
 var line_gen = d3.svg.line();
 function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
@@ -175,16 +185,9 @@ function hullToInterior(p){
         .attr("dy", "0px")
         .style("font-size", "0px")
         .remove();
-    // TODO place the letter in the letter queue
 }
 
 var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""))
-
-d3.selection.prototype.translate = function(a, b) {
-  return arguments.length == 1
-      ? this.attr("transform", "translate(" + a + ")")
-      : this.attr("transform", "translate(" + a + "," + b + ")")
-};
 
 var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
 
@@ -193,6 +196,8 @@ var margin = {top: 120, right: 20, bottom: 20, left: 400},
     height = window.innerHeight - margin.top - margin.bottom;
 
 console.log("width", width, "height", height);
+
+// SVG initialization and g elements
 
 var svg_deque = d3.select("#deque")
             .attr("width", width + margin.right)
@@ -224,7 +229,8 @@ var g_yellow = svg_polygon.append("g"),
     g_points = svg_polygon.append("g");
 
 g_lines.append("path").attr("id", "path_poly");
-//g_lines.append("path").attr("id", "path_hull");
+
+var text = d3.select("#text");
 
 // Sin Bin: Global state of the algorithm
 var points = [];
@@ -233,7 +239,7 @@ var freeze = false;
 var popping = false;
 var state = 0;
 
-var text = d3.select("#text");
+// Functions to handle specific moments in the presentation
 
 function first3(){
     freeze = true;
@@ -260,6 +266,17 @@ function revealDeque(){
         })
         .remove();
 }
+
+function pointC(){
+    state++;
+    var a = points[0], b = points[1], c = points[2];
+    var initialLeftTurn = leftTurn(a,b,c);
+    text.html(explanations.pointC(initialLeftTurn));
+    renderFills();
+    renderDeque();
+}
+
+// Main rendering functions
 
 function renderDeque(){
     var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
@@ -304,6 +321,7 @@ function renderDeque(){
             })
     })
 
+    // arrows, the gray line indicating the side of the deque
     if (state == 20){
         arrows.attr("display", null).translate(-60, 75);
     }else if (state == 21){
@@ -325,15 +343,6 @@ function renderDeque(){
                         return "white";
         });
     }
-}
-
-function pointC(){
-    state++;
-    var a = points[0], b = points[1], c = points[2];
-    var initialLeftTurn = leftTurn(a,b,c);
-    text.html(explanations.pointC(initialLeftTurn));
-    renderFills();
-    renderDeque();
 }
 
 function renderFills(){
@@ -411,6 +420,8 @@ function renderYellowRegion(){
         //.duration(1200)
         .style("fill", yellow)
 }
+
+// Determine region and handle new point
 
 function newPoint(pos){
     freeze = true;
@@ -503,6 +514,8 @@ function finale(){
     state = 31;
     text.html(explanations.finale)
 }
+
+// Finally, the driving event dispatchers
 
 svg_polygon.on("click", function(){
     if (freeze) return;
