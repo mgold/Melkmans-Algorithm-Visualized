@@ -22,6 +22,14 @@ p {
     margin: 32px 20px;
 }
 
+p.finale {
+    margin: 0px 20px;
+}
+
+p.finale-top {
+    margin: 32px 20px 16px;
+}
+
 h1 { font-size: 36px; }
 h2 { font-size: 18px; }
 

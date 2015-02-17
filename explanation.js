@@ -68,11 +68,12 @@ exports.finished = lines("Now that we've seen the last point on the polygon, tak
         "Because each point was added and removed from the deque at most twice (once on each end), the algorithm has taken linear time."
         );
 
-exports.finale = "<p>Thank you to the open source technologies that made this visualization possible:</p>" +
+exports.finale = "<p class='finale-top'>Visualizations are powerful tools to understand algorithms: how they operate, what are the cases, and where they can falter. Careful design can elucidate the consequences only implicit in mathematical concepts.</p>" +
+    "<p class='finale'>Thank you to the open source technologies that made this visualization possible:</p>" +
     "<ul><li><a href='http://d3js.org/'>D3.js</a></li>" +
     "<li><a href='http://www.collectionsjs.com/deque'>Collections.js Deque</a></li>" +
     "<li>npm modules <a href='https://www.npmjs.com/package/vishull2d'>vishull2d</a>, <a href='https://www.npmjs.com/package/segseg'>segseg</a>, and <a href='https://www.npmjs.com/package/quick-hull-2d'>quick-hull-2d</a></li>" +
-    "</ul><p>Further reading:</p><ul>" +
+    "</ul><p class='finale'>Further reading:</p><ul>" +
     "<li>Avraham Melkman's <a href='http://www.ime.usp.br/~walterfm/cursos/mac0331/2006/melkman.pdf'>original paper</a></li>" +
     "<li><em><a href='http://bost.ocks.org/mike/algorithms/'>Visualizing Algorithms</a></em> by Mike Bostock</li>"+ 
     "<li>Bret Victor's <a href='http://worrydream.com/#'>entire website</a></li>" +
