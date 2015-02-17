@@ -69,18 +69,17 @@ function dist2(p0, p1){
 }
 
 function intersectsAny(p0, p1){
-    var ret = false;
+    var ret = 0;
     g_lines.selectAll(".err").remove();
     for (var i = 0; i < points.length-2; i++){
         if (intersect(p0, p1, points[i], points[i+1])){
-            ret = true
-            console.log("gotcha")
-            var p0 = points[i], p1 = points[i+1];
+            ret++;
+            var q0 = points[i], q1 = points[i+1];
             g_lines.append("line")
-                .attr("x1", p0[0])
-                .attr("y1", p0[1])
-                .attr("x2", p1[0])
-                .attr("y2", p1[1])
+                .attr("x1", q0[0])
+                .attr("y1", q0[1])
+                .attr("x2", q1[0])
+                .attr("y2", q1[1])
                 .attr("class", "err")
         }
     }
@@ -521,8 +520,10 @@ svg_polygon.on("click", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
     if (points.length > 0){
-        var prev = points[points.length-1]
-        if (intersectsAny(prev, pos)){
+        var prev = points[points.length-1],
+            numberIntersections = intersectsAny(prev, pos);
+         if (numberIntersections){
+            text.html(explanations.nonsimple(numberIntersections));
             return;
         }
         if (dist2(pos, prev) < 400){

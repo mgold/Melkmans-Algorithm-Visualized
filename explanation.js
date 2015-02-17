@@ -38,6 +38,13 @@ exports.yellowRegion = lines("But point d could also land within the known hull,
         "Now place point d in one of the colored regions."
         );
 
+exports.nonsimple = function(n){
+    var edges = n == 1 ? "edge has" : "edges have";
+        return lines("Hey, that's not allowed.",
+    "The algorithm assumes that the polygon is simple, meaning edges don't cross each other. The offending " + edges + " been highlighted in <strong class=error-red>bright red</strong>.",
+    "Try placing the point in one of the colored regions."
+    )}
+
 exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
         "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out."
         );

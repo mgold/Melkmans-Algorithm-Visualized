@@ -71,6 +71,10 @@ strong.white {
     background-color: white;
 }
 
+strong.error-red {
+    color: red;
+}
+
 .hull-vertex circle {
     fill: white;
     stroke: black;
