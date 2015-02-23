@@ -89,5 +89,5 @@ exports.finale = "<p class='finale-top'>Visualizations are powerful tools to und
     "<li>Avraham Melkman's <a href='http://www.ime.usp.br/~walterfm/cursos/mac0331/2006/melkman.pdf'>original paper</a></li>" +
     "<li><em><a href='http://bost.ocks.org/mike/algorithms/'>Visualizing Algorithms</a></em> by Mike Bostock</li>"+ 
     "<li>Bret Victor's <a href='http://worrydream.com/#'>entire website</a></li>" +
-    "<li>Source code <a href='#'>on GitHub</a></li>" +
+    "<li>Source code <a href='https://github.com/mgold/Melkmans-Algorithm-Visualized'>on GitHub</a></li>" +
     "</ul>"

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Visualization of Melkman's algorithm",
   "main": "melkman.js",
+  "repository": "https://github.com/mgold/Melkmans-Algorithm-Visualized",
   "dependencies": {
     "collections": "^1.2.1",
     "js-clipper": "^1.0.1",
