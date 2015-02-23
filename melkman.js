@@ -175,18 +175,30 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
+function mousePoint(p){
+    var sel = g_points.select("#newest");
+    if (sel.size()){
+        points[points.length-1] = p;
+        sel.translate(p).datum(p);
+        return sel;
+    }else{
+        p.s = alphabet.peek();
+        points.push(p);
+        var g = g_points.append("g").attr("id", "newest").attr("class", "hull-vertex").translate(p).datum(p);
+        var fill = newPos && p.s == newPos.s ? gray : "white";
+        g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
+        g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px");
+        return g;
+    }
+}
+
 function hullPoint(p){
-    var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
-    var fill = newPos && p.s == newPos.s ? gray : "white";
-    g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
-    if (p.s){ g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px"); }
-    return g;
+    g_points.select("#newest").attr("id", null);
 }
 
 function interiorPoint(p){
-    var g = g_points.append("g").attr("class", "interior-vertex").translate(p)
-    g.append("circle").attr("r", 4).style({fill: "black", stroke: "none"})
-    return g;
+    g_points.select("#newest").attr("id", null).translate(p).datum(p);
+    return hullToInterior(p);
 }
 
 function hullToInterior(p){
@@ -525,6 +537,7 @@ function finished(){
     state = 30;
     freeze = true;
     text.html(explanations.finished)
+    g_points.select("#newest").remove();
     points.push(points[0]);
     line();
     svg_polygon.selectAll("path.region").transition().duration(500)
@@ -541,6 +554,8 @@ function finale(){
 svg_polygon.on("click", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
+    pos = [pos[0] - 7, pos[1] - 7]
+    points.pop(); // throw out provisional mouse point
     // check finish condition before nonsimple condition
     if (points.length >= 3 && dist2(pos, points[0]) < 600) return finished();
     if (points.length > 0){
@@ -560,6 +575,14 @@ svg_polygon.on("click", function(){
     points.push(pos);
     line();
     if (points.length === 3) first3();
+})
+
+svg_polygon.on("mousemove", function(){
+    if (freeze) return;
+    var pos = d3.mouse(svg_polygon.node());
+    pos = [pos[0] - 7, pos[1] - 7];
+    mousePoint(pos);
+    line();
 })
 
 d3.select("body").on("keydown", function(){
