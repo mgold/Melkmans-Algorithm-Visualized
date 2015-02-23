@@ -79,6 +79,7 @@ exports.finale = "<p class='finale-top'>Visualizations are powerful tools to und
     "<p class='finale'>Thank you to the open source technologies that made this visualization possible:</p>" +
     "<ul><li><a href='http://d3js.org/'>D3.js</a></li>" +
     "<li><a href='http://www.collectionsjs.com/deque'>Collections.js Deque</a></li>" +
+    "<li><a href='http://sourceforge.net/p/jsclipper/wiki/Home%206/'>JS Clipper</a></li>" +
     "<li>npm modules <a href='https://www.npmjs.com/package/vishull2d'>vishull2d</a>, <a href='https://www.npmjs.com/package/segseg'>segseg</a>, and <a href='https://www.npmjs.com/package/quick-hull-2d'>quick-hull-2d</a></li>" +
     "</ul><p class='finale'>Further reading:</p><ul>" +
     "<li>Avraham Melkman's <a href='http://www.ime.usp.br/~walterfm/cursos/mac0331/2006/melkman.pdf'>original paper</a></li>" +
