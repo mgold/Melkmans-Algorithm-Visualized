@@ -248,6 +248,7 @@ var g_yellow = svg_polygon.append("g"),
 g_lines.append("path").attr("id", "path_poly");
 
 var text = d3.select("#text");
+text.html(explanations.intro)
 
 // Sin Bin: Global state of the algorithm
 var points = [];

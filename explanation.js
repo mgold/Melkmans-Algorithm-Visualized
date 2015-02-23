@@ -2,6 +2,10 @@ function lines(){
     return "<p>" + Array.prototype.slice.call(arguments).join("</p><p>") + "</p>"
 }
 
+exports.intro = lines("Melkman's algorithm finds the <strong>convex hull</strong> of a polygon. If you wrapped a rubber band around a polygon and let it snap tight, you'd have the convex hull, which is one of the foundations of computational geometry. Melkman's algorithm is interesting because it works in linear time; finding the convex hull of a point set (rather than a polygon) takes O(<em>n</em> log <em>n</em>) time.",
+    "To start, make a polygon by placing points on the canvas to the right."
+);
+
 exports.okayStop = lines( "Okay, stop.",
        "Most convex hull algorithms require the entire polygon up front, but Melkman's asks, what can we find out with <em>only three points</em>?",
        "The convex hull of the three points <em>so far</em> is just the triangle they make. But, as we get more points, we may discover that some or all of these edges aren't actually on the hull at all! It's possible these points are deep in a pocket, but we won't know until we see more of the polygon.",
