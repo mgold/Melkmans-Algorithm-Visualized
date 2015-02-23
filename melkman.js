@@ -175,12 +175,20 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
+function updatePoint(p){
+    var sel = g_points.select("#newest");
+    if (sel.size()){
+        p.s = sel.datum().s;
+        sel.translate(p).datum(p);
+    }
+    return sel;
+}
+
 function mousePoint(p){
     var sel = g_points.select("#newest");
     if (sel.size()){
+        updatePoint(p);
         points[points.length-1] = p;
-        sel.translate(p).datum(p);
-        return sel;
     }else{
         p.s = alphabet.peek();
         points.push(p);
@@ -193,11 +201,11 @@ function mousePoint(p){
 }
 
 function hullPoint(p){
-    g_points.select("#newest").attr("id", null);
+    updatePoint(p).attr("id", null);
 }
 
 function interiorPoint(p){
-    g_points.select("#newest").attr("id", null).translate(p).datum(p);
+    updatePoint(p).attr("id", null);
     return hullToInterior(p);
 }
 
