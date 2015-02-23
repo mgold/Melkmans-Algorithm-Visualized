@@ -541,6 +541,8 @@ function finale(){
 svg_polygon.on("click", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
+    // check finish condition before nonsimple condition
+    if (points.length >= 3 && dist2(pos, points[0]) < 600) return finished();
     if (points.length > 0){
         var prev = points[points.length-1],
             numberIntersections = intersectsAny(prev, pos);
@@ -553,13 +555,7 @@ svg_polygon.on("click", function(){
         }
     }
     pos.s = alphabet.shift();
-    if (points.length >= 3){
-        if (dist2(pos, points[0]) < 600){
-            return finished();
-        }else{
-            return newPoint(pos);
-        }
-    }
+    if (points.length >= 3) return newPoint(pos);
     hullPoint(pos);
     points.push(pos);
     line();
