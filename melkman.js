@@ -89,7 +89,7 @@ function dist2(p0, p1){
 function intersectsAny(p0, p1){
     var ret = 0;
     g_lines.selectAll(".err").remove();
-    for (var i = 0; i < points.length-2; i++){
+    for (var i = 0; i < points.length-3; i++){
         if (lineIntersection(p0, p1, points[i], points[i+1])){
             ret++;
             var q0 = points[i], q1 = points[i+1];
@@ -275,6 +275,7 @@ var points = [];
 var deque, lastOnHull, newPos;
 var freeze = false;
 var popping = false;
+var validPoint = true;
 var state = 0;
 
 // Functions to handle specific moments in the presentation
@@ -532,7 +533,7 @@ function fixRight(){
         lastOnHull = newPos;
         newPos = undefined;
         popping = false;
-        state = 5;
+        state = 6;
         renderDeque();
         renderFills();
         renderRBPregions();
@@ -566,16 +567,10 @@ svg_polygon.on("click", function(){
     points.pop(); // throw out provisional mouse point
     // check finish condition before nonsimple condition
     if (points.length >= 3 && dist2(pos, points[0]) < 600) return finished();
+    if (!validPoint) return;
     if (points.length > 0){
-        var prev = points[points.length-1],
-            numberIntersections = intersectsAny(prev, pos);
-         if (numberIntersections){
-            text.html(explanations.nonsimple(numberIntersections));
-            return;
-        }
-        if (dist2(pos, prev) < 400){
-            return;
-        }
+        var prev = points[points.length-1];
+        if (dist2(pos, prev) < 400) return;
     }
     pos.s = alphabet.shift();
     if (points.length >= 3) return newPoint(pos);
@@ -589,6 +584,17 @@ svg_polygon.on("mousemove", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
     pos = [pos[0] - 7, pos[1] - 7];
+    if (points.length >= 3){
+        var prev = points[points.length-2],
+            numberIntersections = intersectsAny(prev, pos);
+        if (numberIntersections){
+            text.html(explanations.nonsimple(numberIntersections));
+            validPoint = false;
+        }else{
+            if (!validPoint) state === 5 ? text.html(explanations.yellowRegion) : text.html(explanations.donePopping);
+            validPoint = true;
+        }
+    }
     mousePoint(pos);
     line();
 })
