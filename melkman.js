@@ -553,6 +553,7 @@ function finished(){
     svg_polygon.selectAll("path.region").transition().duration(500)
         .style("fill", "white")
         .remove();
+    g_lines.selectAll(".err").remove();
 }
 function finale(){
     state = 31;
