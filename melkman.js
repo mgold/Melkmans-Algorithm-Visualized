@@ -89,7 +89,8 @@ function dist2(p0, p1){
 function intersectsAny(p0, p1){
     var ret = 0;
     g_lines.selectAll(".err").remove();
-    for (var i = 0; i < points.length-3; i++){
+    var j = points.length === 4 ? 3 : 4; // Don't ask
+    for (var i = 0; i < points.length-j; i++){
         if (lineIntersection(p0, p1, points[i], points[i+1])){
             ret++;
             var q0 = points[i], q1 = points[i+1];
@@ -190,7 +191,7 @@ function mousePoint(p){
         updatePoint(p);
         points[points.length-1] = p;
     }else{
-        p.s = alphabet.peek();
+        p.s = alphabet.shift();
         points.push(p);
         var g = g_points.append("g").attr("id", "newest").attr("class", "hull-vertex").translate(p).datum(p);
         var fill = newPos && p.s == newPos.s ? gray : "white";
@@ -548,7 +549,7 @@ function finished(){
     freeze = true;
     text.html(explanations.finished)
     g_points.select("#newest").remove();
-    points.push(points[0]);
+    points[points.length-1] = points[0];
     line();
     svg_polygon.selectAll("path.region").transition().duration(500)
         .style("fill", "white")
@@ -564,20 +565,16 @@ function finale(){
 
 svg_polygon.on("click", function(){
     if (freeze) return;
-    var pos = d3.mouse(svg_polygon.node());
-    pos = [pos[0] - 7, pos[1] - 7]
-    points.pop(); // throw out provisional mouse point
+    var pos = points[points.length-1];
     // check finish condition before nonsimple condition
-    if (points.length >= 3 && dist2(pos, points[0]) < 600) return finished();
+    if (points.length > 3 && dist2(pos, points[0]) < 600) return finished();
     if (!validPoint) return;
-    if (points.length > 0){
-        var prev = points[points.length-1];
+    if (points.length > 1){
+        var prev = points[points.length-2];
         if (dist2(pos, prev) < 400) return;
     }
-    pos.s = alphabet.shift();
-    if (points.length >= 3) return newPoint(pos);
+    if (points.length > 3) return newPoint(pos);
     hullPoint(pos);
-    points.push(pos);
     line();
     if (points.length === 3) first3();
 })
@@ -586,7 +583,7 @@ svg_polygon.on("mousemove", function(){
     if (freeze) return;
     var pos = d3.mouse(svg_polygon.node());
     pos = [pos[0] - 7, pos[1] - 7];
-    if (points.length >= 3){
+    if (points.length > 3){
         var prev = points[points.length-2],
             numberIntersections = intersectsAny(prev, pos);
         if (numberIntersections){
