@@ -1,16 +1,16 @@
-var Deque = require("collections/deque")
-var convexHull = require("quick-hull-2d")
-var _visibility = require("vishull2d")
-var lineIntersection = require("segseg")
-var ClipperLib = require("js-clipper")
-var explanations = require("./explanation")
+var Deque = require("collections/deque");
+var convexHull = require("quick-hull-2d");
+var _visibility = require("vishull2d");
+var lineIntersection = require("segseg");
+var ClipperLib = require("js-clipper");
+var explanations = require("./explanation");
 
 // Prototype extensions and helper functions - interesting code starts around line 170
 
 //extend the deque to support peeking at the second item on either end
 Deque.prototype.peek2 = function () {
     if (this.length < 2) {
-        console.warn("Deque too small to peek2", this.toArray())
+        console.warn("Deque too small to peek2", this.toArray());
         return;
     }
     var index = (this.front + 1) & (this.capacity - 1);
@@ -19,7 +19,7 @@ Deque.prototype.peek2 = function () {
 
 Deque.prototype.peekBack2 = function () {
     if (this.length < 2) {
-        console.warn("Deque too small to peekBack2", this.toArray())
+        console.warn("Deque too small to peekBack2", this.toArray());
         return;
     }
     var index = (this.front + this.length - 2) & (this.capacity - 1);
@@ -29,7 +29,7 @@ Deque.prototype.peekBack2 = function () {
 d3.selection.prototype.translate = function(a, b) {
   return arguments.length === 1 ?
         this.attr("transform", "translate(" + a + ")")
-      : this.attr("transform", "translate(" + a + "," + b + ")")
+      : this.attr("transform", "translate(" + a + "," + b + ")");
 };
 
 // Wrapping node library functions - better than writing from scratch
@@ -40,7 +40,7 @@ function visibility(pts, cen){
         [[0,0], [0,height]],
         [[0,height], [width,height]],
         [[width,height], [width, 0]],
-        [[width, 0], [0,0]] ]
+        [[width, 0], [0,0]] ];
     for (var i = 0; i < pts.length; ++i) {
         var j = i+1;
         if (j === pts.length) j = 0;
@@ -55,11 +55,11 @@ function polygonIntersection(subject, clip){
         subject_fillType = ClipperLib.PolyFillType.pftNonZero,
         clip_fillType = ClipperLib.PolyFillType.pftNonZero;
 
-    cpr.AddPaths([subject.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptSubject, true);
-    cpr.AddPaths([clip.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptClip, true);
+    cpr.AddPaths([subject.map(function(p){return {X: p[0], Y: p[1]};})], ClipperLib.PolyType.ptSubject, true);
+    cpr.AddPaths([clip.map(function(p){return {X: p[0], Y: p[1]};})], ClipperLib.PolyType.ptClip, true);
     cpr.Execute(ClipperLib.ClipType.ctIntersection, solution_paths, subject_fillType, clip_fillType);
     if (solution_paths.length === 0) return [];
-    return solution_paths[0].map(function(obj){return [obj.X, obj.Y]});
+    return solution_paths[0].map(function(obj){return [obj.X, obj.Y];});
 }
 
 // Geometry helpers
@@ -99,7 +99,7 @@ function intersectsAny(p0, p1){
                 .attr("y1", q0[1])
                 .attr("x2", q1[0])
                 .attr("y2", q1[1])
-                .attr("class", "err")
+                .attr("class", "err");
         }
     }
     return ret;
@@ -152,17 +152,17 @@ function corners(b0, b1){
         }else if (b[1]===height){
             return bottom;
         }else{
-            console.warn("corners called with non-boundary point", b)
+            console.warn("corners called with non-boundary point", b);
         }
-    }
+    };
 
     var s0 = sideOf(b0), s1 = sideOf(b1);
 
     var cornerPoints = [[width,0], [width, height], [0,height], [0,0]];
-    ret = []
+    ret = [];
 
     while (s0 != s1){
-        ret.push(cornerPoints[s0])
+        ret.push(cornerPoints[s0]);
         s0++;
         s0 %= 4;
     }
@@ -174,7 +174,7 @@ function corners(b0, b1){
 
 var line_gen = d3.svg.line();
 function line(){
-    return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
+    return g_lines.select("#path_poly").datum(points).attr("d", line_gen);
 }
 
 function updatePoint(p){
@@ -196,7 +196,7 @@ function mousePoint(p){
         points.push(p);
         var g = g_points.append("g").attr("id", "newest").attr("class", "hull-vertex").translate(p).datum(p);
         var fill = newPos && p.s == newPos.s ? gray : "white";
-        g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
+        g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"});
         g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px");
         return g;
     }
@@ -214,19 +214,19 @@ function interiorPoint(p){
 function hullToInterior(p){
     alphabet.push(p.s);
     var point = g_points.selectAll(".hull-vertex")
-        .filter(function(d){return d.s===p.s})
+        .filter(function(d){return d.s===p.s;})
         .attr("class", "interior-vertex")
         .transition().duration(1100);
     point.select("circle")
         .attr("r", 4)
-        .style({fill: "black", stroke: "0px"})
+        .style({fill: "black", stroke: "0px"});
     point.select("text")
         .attr("dy", "0px")
         .style("font-size", "0px")
         .remove();
 }
 
-var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""))
+var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""));
 
 var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
 
@@ -240,15 +240,15 @@ console.log("width", width, "height", height);
 
 var svg_deque = d3.select("#deque")
             .attr("width", width + margin.right)
-            .attr("height", margin.top - 10)
+            .attr("height", margin.top - 10);
 
 var svg_polygon = d3.select("#polygon")
             .attr("width", width + margin.right)
-            .attr("height", height + margin.bottom - 5)
+            .attr("height", height + margin.bottom - 5);
 
 d3.selectAll("svg").append("rect")
     .attr({width: width-2, x: 1, y: 1, class: "bg"})
-    .attr("height", function(d,i){return i ? height : margin.top - 30})
+    .attr("height", function(d,i){return i ? height : margin.top - 30;});
 
 var g_deque = svg_deque.append("g")
     .attr("transform", "translate("+((width - 60*4)/2)+",0)");
@@ -256,11 +256,11 @@ var g_deque = svg_deque.append("g")
 var arrows = g_deque.append("line")
     .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
     .translate(0, 75)
-    .style("stroke", gray)
+    .style("stroke", gray);
 
 svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
     .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
-    .attr("x", function(d){return d*(width+margin.right)});
+    .attr("x", function(d){return d*(width+margin.right);});
 
 var g_yellow = svg_polygon.append("g"),
     g_regions = svg_polygon.append("g"),
@@ -270,7 +270,7 @@ var g_yellow = svg_polygon.append("g"),
 g_lines.append("path").attr("id", "path_poly");
 
 var text = d3.select("#text");
-text.html(explanations.intro)
+text.html(explanations.intro);
 
 // Sin Bin: Global state of the algorithm
 var points = [];
@@ -285,7 +285,7 @@ var state = 0;
 function first3(){
     freeze = true;
     state = 1;
-    text.html(explanations.okayStop)
+    text.html(explanations.okayStop);
     var a = points[0], b = points[1], c = points[2];
 }
 
@@ -295,9 +295,9 @@ function revealDeque(){
     var a = points[0], b = points[1], c = points[2];
     lastOnHull = c;
     if (leftTurn(a,b,c)){
-        deque = new Deque([b,a])
+        deque = new Deque([b,a]);
     }else{
-        deque = new Deque([a,b])
+        deque = new Deque([a,b]);
     }
     renderDeque();
     svg_deque.selectAll(".cover").transition()
@@ -321,11 +321,11 @@ function pointC(){
 
 function renderDeque(){
     var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
-                        : [newPos].concat(deque.toArray(), [newPos])
-    console.log(data.map(function(d){return d.s}), lastOnHull.s, newPos && newPos.s);
+                        : [newPos].concat(deque.toArray(), [newPos]);
+    console.log(data.map(function(d){return d.s;}), lastOnHull.s, newPos && newPos.s);
     if (!popping){
         g_deque.transition().duration(750)
-            .attr("transform", "translate("+((width - 60*data.length)/2)+",0)")
+            .attr("transform", "translate("+((width - 60*data.length)/2)+",0)");
     }
     var items = g_deque.selectAll(".deque-vertex")
         .data(data, function(d,i){
@@ -336,14 +336,14 @@ function renderDeque(){
     var entering = items.enter().append("g").attr("class", "deque-vertex")
         .attr("transform", function(d,i){
             var j = state == 2 ? i : i - 1;
-            return "translate("+(j*60)+","+(margin.top / 2 - 35)+")" })
+            return "translate("+(j*60)+","+(margin.top / 2 - 35)+")";});
     entering.append("rect")
         .attr({width: "40px", height: "40px", rx: "8px", ry: "8px", x: "0px", y: "0px"})
-        .style("fill", state == 2 ? "white" : gray)
+        .style("fill", state == 2 ? "white" : gray);
     entering.append("text")
         .translate(20,20)
-        .attr("dy", "5px")
-    items.selectAll("text").text(function(d){ return d.s});
+        .attr("dy", "5px");
+    items.selectAll("text").text(function(d){return d.s;});
     items.order();
     var exiting = items.exit().transition().duration(800).ease("cubic");
     exiting.select("rect").attr({width: 0, height: 0, x: "20px", y: "20px", rx: "0px", ry: "0px"});
@@ -359,14 +359,14 @@ function renderDeque(){
                 if (state === 20 && i !== 0) transform.translate[0] -= 60;
                 if (state === 21 && i !== lastIndex) transform.translate[0] += 60;
                 return transform.toString();
-            })
-    })
+            });
+    });
 
     // arrows, the gray line indicating the side of the deque
     if (state == 20){
         arrows.attr("display", null).translate(-60, 75);
     }else if (state == 21){
-        var x = d3.transform(items.filter(function(d,i){return i===items.size()-1}).attr("transform")).translate[0];
+        var x = d3.transform(items.filter(function(d,i){return i===items.size()-1;}).attr("transform")).translate[0];
         arrows.attr("display", null).translate(x-120, 75);
     }else{
         arrows.attr("display", "none");
@@ -375,7 +375,7 @@ function renderDeque(){
     if (!popping && state > 2){
     lastIndex = items.size() - 1;
     items.transition()
-        .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
+        .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")";})
         .select("rect")
         .style("fill", function(d,i){
                         if (i === 0 || i === lastIndex) { return purple; }
@@ -430,8 +430,8 @@ function renderRBPregions(){
           .transition()
             .duration(transitionInLen)
             .delay(order*transitionInLen + transitionOutLen)
-            .style("fill", color)
-    }
+            .style("fill", color);
+    };
     var p_r = deque.peek();
     var p_b = deque.peekBack();
     var p_p = lastOnHull;
@@ -461,7 +461,7 @@ function renderYellowRegion(){
         .attr("class", "region")
       .transition()
         //.duration(1200)
-        .style("fill", yellow)
+        .style("fill", yellow);
 }
 
 // Determine region and handle new point
@@ -470,7 +470,7 @@ function newPoint(pos){
     freeze = true;
     var red = rightTurn(deque.peek(), lastOnHull, pos);
     var blue = leftTurn(deque.peekBack(), lastOnHull, pos);
-    console.log("red:", red, "blue:", blue)
+    console.log("red:", red, "blue:", blue);
 
     if (!red && !blue){
         interiorPoint(pos);
@@ -495,7 +495,7 @@ function newPoint(pos){
         line();
         deque.push(lastOnHull);
         deque.unshift(lastOnHull);
-        popping = true
+        popping = true;
         state = 20;
         renderDeque();
     }
@@ -532,7 +532,7 @@ function fixRight(){
         }
         renderDeque();
     }else{
-        text.html(explanations.donePopping)
+        text.html(explanations.donePopping);
         lastOnHull = newPos;
         newPos = undefined;
         popping = false;
@@ -548,7 +548,7 @@ function fixRight(){
 function finished(){
     state = 30;
     freeze = true;
-    text.html(explanations.finished)
+    text.html(explanations.finished);
     g_points.select("#newest").remove();
     points[points.length-1] = points[0];
     line();
@@ -559,7 +559,7 @@ function finished(){
 }
 function finale(){
     state = 31;
-    text.html(explanations.finale)
+    text.html(explanations.finale);
 }
 
 // Finally, the driving event dispatchers
@@ -578,7 +578,7 @@ svg_polygon.on("click", function(){
     hullPoint(pos);
     line();
     if (points.length === 3) first3();
-})
+});
 
 function adjustPosition(p){
     var x = p[0]-7, y = p[1]-7;
@@ -598,17 +598,17 @@ svg_polygon.on("mousemove", function(){
             validPoint = false;
         }else if (!validPoint){
             validPoint = true;
-            if (state === 5) text.html(explanations.yellowRegion)
+            if (state === 5) text.html(explanations.yellowRegion);
             if (state === 6) text.html(explanations.donePopping);
-            if (state === 7) text.html(explanations.pointInYellow)
+            if (state === 7) text.html(explanations.pointInYellow);
         }
     }
     mousePoint(pos);
     line();
-})
+});
 
 d3.select("body").on("keydown", function(){
-    var transitioning = svg_deque.selectAll(".deque-vertex")[0].some(function(node){return !!node.__transition__})
+    var transitioning = svg_deque.selectAll(".deque-vertex")[0].some(function(node){return !!node.__transition__;});
     if (transitioning) return;
     if (d3.event.keyCode == 32){
         switch (state){
@@ -636,4 +636,4 @@ d3.select("body").on("keydown", function(){
             default:
         }
     }
-})
+});

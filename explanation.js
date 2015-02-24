@@ -1,5 +1,5 @@
 function lines(){
-    return "<p>" + Array.prototype.slice.call(arguments).join("</p><p>") + "</p>"
+    return "<p>" + Array.prototype.slice.call(arguments).join("</p><p>") + "</p>";
 }
 
 exports.intro = lines("Melkman's algorithm finds the <strong>convex hull</strong> of a polygon. If you wrapped a rubber band around a polygon and let it snap tight, you'd have the convex hull, which is one of the foundations of computational geometry. Melkman's algorithm is interesting because it works in linear time; finding the convex hull of a point set (rather than a polygon) takes O(<em>n</em> log <em>n</em>) time.",
@@ -27,8 +27,8 @@ exports.pointC = function(leftTurn){
             (leftTurn ? "b" : "a" ) +
             "</strong> will be red because it appears to point c's right.",
             "Right now, the deque is small, so all points matter. Later on, we'll see that we don't need to access points deep in the deque."
-            )
-}
+            );
+};
 
 exports.rbpRegions = lines("Looking at those two outermost points on each side of the deque, we extend the lines they form to create regions, based on where point d could land.",
         "A sharp left turn puts us in the <strong class=blue>blue</strong> region. A left turn could violate the invariant on the right side of the deque, where we should be making a right turn.",
@@ -47,7 +47,7 @@ exports.nonsimple = function(n){
         return lines("Hey, that's not allowed.",
     "The algorithm assumes that the polygon is simple, meaning edges don't cross each other. The offending " + edges + " been highlighted in <strong class=error-red>bright red</strong>.",
     "The white region is off-limits. Try placing the point in one of the colored regions."
-    )}
+    );};
 
 exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
         "You can place as many points in the yellow region as you like. Just be sure to leave yourself a way out, because the yellow region does not have a line of sight to all the other regions."
@@ -64,10 +64,10 @@ exports.pointInPurple = lines("You've placed a point in the <strong class=purple
         );
 
 exports.redRight = lines("Since the point was placed in the red region, the right side of the deque does not need to be modified.",
-        "In a real implementation, the algorithm would pop until these three points form a right turn when read rightward. The red region tells us humans that they already form a right turn.")
+        "In a real implementation, the algorithm would pop until these three points form a right turn when read rightward. The red region tells us humans that they already form a right turn.");
 
 exports.blueLeft = lines("You've placed a point in the <strong class=blue>blue</strong> region. This means that the left side of the deque does not need to be modified.",
-        "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The red region tells us humans that they already form a left turn.")
+        "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The red region tells us humans that they already form a left turn.");
 
 exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
         "The new deque is once again the convex hull of the known points. Now it's time to add another one!",
@@ -90,4 +90,4 @@ exports.finale = "<p class='finale-top'>Visualizations are powerful tools to und
     "<li><em><a href='http://bost.ocks.org/mike/algorithms/'>Visualizing Algorithms</a></em> by Mike Bostock</li>"+ 
     "<li>Bret Victor's <a href='http://worrydream.com/#'>entire website</a></li>" +
     "<li>Source code <a href='https://github.com/mgold/Melkmans-Algorithm-Visualized'>on GitHub</a></li>" +
-    "</ul>"
+    "</ul>";
