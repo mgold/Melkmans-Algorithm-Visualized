@@ -89,7 +89,8 @@ function dist2(p0, p1){
 function intersectsAny(p0, p1){
     var ret = 0;
     g_lines.selectAll(".err").remove();
-    for (var i = 0; i < points.length-2; i++){
+    var j = points.length === 4 ? 3 : 4; // Don't ask
+    for (var i = 0; i < points.length-j; i++){
         if (lineIntersection(p0, p1, points[i], points[i+1])){
             ret++;
             var q0 = points[i], q1 = points[i+1];
@@ -175,18 +176,38 @@ function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen)
 }
 
+function updatePoint(p){
+    var sel = g_points.select("#newest");
+    if (sel.size()){
+        p.s = sel.datum().s;
+        sel.translate(p).datum(p);
+    }
+    return sel;
+}
+
+function mousePoint(p){
+    var sel = g_points.select("#newest");
+    if (sel.size()){
+        updatePoint(p);
+        points[points.length-1] = p;
+    }else{
+        p.s = alphabet.shift();
+        points.push(p);
+        var g = g_points.append("g").attr("id", "newest").attr("class", "hull-vertex").translate(p).datum(p);
+        var fill = newPos && p.s == newPos.s ? gray : "white";
+        g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
+        g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px");
+        return g;
+    }
+}
+
 function hullPoint(p){
-    var g = g_points.append("g").attr("class", "hull-vertex").translate(p).datum(p);
-    var fill = newPos && p.s == newPos.s ? gray : "white";
-    g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"})
-    if (p.s){ g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px"); }
-    return g;
+    updatePoint(p).attr("id", null);
 }
 
 function interiorPoint(p){
-    var g = g_points.append("g").attr("class", "interior-vertex").translate(p)
-    g.append("circle").attr("r", 4).style({fill: "black", stroke: "none"})
-    return g;
+    updatePoint(p).attr("id", null);
+    return hullToInterior(p);
 }
 
 function hullToInterior(p){
@@ -255,6 +276,7 @@ var points = [];
 var deque, lastOnHull, newPos;
 var freeze = false;
 var popping = false;
+var validPoint = true;
 var state = 0;
 
 // Functions to handle specific moments in the presentation
@@ -457,6 +479,7 @@ function newPoint(pos){
         renderYellowRegion();
         renderRBPregions();
         freeze = false;
+        state = 7;
     }else{
         if (red && !blue){
             text.html(explanations.pointInRed);
@@ -512,7 +535,7 @@ function fixRight(){
         lastOnHull = newPos;
         newPos = undefined;
         popping = false;
-        state = 5;
+        state = 6;
         renderDeque();
         renderFills();
         renderRBPregions();
@@ -525,11 +548,13 @@ function finished(){
     state = 30;
     freeze = true;
     text.html(explanations.finished)
-    points.push(points[0]);
+    g_points.select("#newest").remove();
+    points[points.length-1] = points[0];
     line();
     svg_polygon.selectAll("path.region").transition().duration(500)
         .style("fill", "white")
         .remove();
+    g_lines.selectAll(".err").remove();
 }
 function finale(){
     state = 31;
@@ -540,26 +565,39 @@ function finale(){
 
 svg_polygon.on("click", function(){
     if (freeze) return;
-    var pos = d3.mouse(svg_polygon.node());
+    var pos = points[points.length-1];
     // check finish condition before nonsimple condition
-    if (points.length >= 3 && dist2(pos, points[0]) < 600) return finished();
-    if (points.length > 0){
-        var prev = points[points.length-1],
-            numberIntersections = intersectsAny(prev, pos);
-         if (numberIntersections){
-            text.html(explanations.nonsimple(numberIntersections));
-            return;
-        }
-        if (dist2(pos, prev) < 400){
-            return;
-        }
+    if (points.length > 3 && dist2(pos, points[0]) < 600) return finished();
+    if (!validPoint) return;
+    if (points.length > 1){
+        var prev = points[points.length-2];
+        if (dist2(pos, prev) < 400) return;
     }
-    pos.s = alphabet.shift();
-    if (points.length >= 3) return newPoint(pos);
+    if (points.length > 3) return newPoint(pos);
     hullPoint(pos);
-    points.push(pos);
     line();
     if (points.length === 3) first3();
+})
+
+svg_polygon.on("mousemove", function(){
+    if (freeze) return;
+    var pos = d3.mouse(svg_polygon.node());
+    pos = [pos[0] - 7, pos[1] - 7];
+    if (points.length > 3){
+        var prev = points[points.length-2],
+            numberIntersections = intersectsAny(prev, pos);
+        if (numberIntersections){
+            text.html(explanations.nonsimple(numberIntersections));
+            validPoint = false;
+        }else if (!validPoint){
+            validPoint = true;
+            if (state === 5) text.html(explanations.yellowRegion)
+            if (state === 6) text.html(explanations.donePopping);
+            if (state === 7) text.html(explanations.pointInYellow)
+        }
+    }
+    mousePoint(pos);
+    line();
 })
 
 d3.select("body").on("keydown", function(){
