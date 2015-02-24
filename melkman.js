@@ -243,7 +243,7 @@ var svg_deque = d3.select("#deque")
 
 var svg_polygon = d3.select("#polygon")
             .attr("width", width + margin.right)
-            .attr("height", height + margin.bottom)
+            .attr("height", height + margin.bottom - 5)
 
 d3.selectAll("svg").append("rect")
     .attr({width: width-2, x: 1, y: 1, class: "bg"})
