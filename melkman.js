@@ -27,8 +27,8 @@ Deque.prototype.peekBack2 = function () {
 };
 
 d3.selection.prototype.translate = function(a, b) {
-  return arguments.length == 1
-      ? this.attr("transform", "translate(" + a + ")")
+  return arguments.length === 1 ?
+        this.attr("transform", "translate(" + a + ")")
       : this.attr("transform", "translate(" + a + "," + b + ")")
 };
 
@@ -43,7 +43,7 @@ function visibility(pts, cen){
         [[width, 0], [0,0]] ]
     for (var i = 0; i < pts.length; ++i) {
         var j = i+1;
-        if (j == pts.length) j = 0;
+        if (j === pts.length) j = 0;
         segments.push([pts[i], pts[j]]);
     }
     return _visibility(segments, cen);
@@ -58,7 +58,7 @@ function polygonIntersection(subject, clip){
     cpr.AddPaths([subject.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptSubject, true);
     cpr.AddPaths([clip.map(function(p){return {X: p[0], Y: p[1]}})], ClipperLib.PolyType.ptClip, true);
     cpr.Execute(ClipperLib.ClipType.ctIntersection, solution_paths, subject_fillType, clip_fillType);
-    if (solution_paths.length == 0) return [];
+    if (solution_paths.length === 0) return [];
     return solution_paths[0].map(function(obj){return [obj.X, obj.Y]});
 }
 
@@ -111,25 +111,26 @@ function toBoundary(p0, p1){
         dx = x - p0[0],
         dy = y - p0[1];
     if (x===0 || y===0) return p1;
+    var k, w;
 
     // left wall
-    var k = -x/dx;
-    var h = y + dy*k;
+    k = -x/dx;
+    h = y + dy*k;
     if (k > 0 && h >= 0 && h <= height) return [0, h];
 
     // top wall
-    var k = -y/dy;
-    var w = x + dx*k;
+    k = -y/dy;
+    w = x + dx*k;
     if (k > 0 && w >= 0 && w <= width) return [w, 0];
 
     // right wall
-    var k = (width-x)/dx;
-    var h = y + dy*k;
+    k = (width-x)/dx;
+    h = y + dy*k;
     if (k > 0 && h >= 0 && h <= height) return [width, h];
 
     // top wall
-    var k = (height-y)/dy;
-    var w = x + dx*k;
+    k = (height-y)/dy;
+    w = x + dx*k;
     if (k > 0 && w >= 0 && w <= width) return [w, height];
 
     console.warn("toBoundary found unsatisfactory result for", p0, p1);
@@ -355,8 +356,8 @@ function renderDeque(){
             .transition()
             .attr("transform", function(d,i){
                 var transform = d3.transform(d3.select(this).attr("transform"));
-                if (state == 20 && i != 0) transform.translate[0] -= 60;
-                if (state == 21 && i != lastIndex) transform.translate[0] += 60;
+                if (state === 20 && i !== 0) transform.translate[0] -= 60;
+                if (state === 21 && i !== lastIndex) transform.translate[0] += 60;
                 return transform.toString();
             })
     })
@@ -365,21 +366,21 @@ function renderDeque(){
     if (state == 20){
         arrows.attr("display", null).translate(-60, 75);
     }else if (state == 21){
-        var x = d3.transform(items.filter(function(d,i){return i==items.size()-1}).attr("transform")).translate[0];
+        var x = d3.transform(items.filter(function(d,i){return i===items.size()-1}).attr("transform")).translate[0];
         arrows.attr("display", null).translate(x-120, 75);
     }else{
         arrows.attr("display", "none");
     }
 
     if (!popping && state > 2){
-    var lastIndex = items.size() - 1;
+    lastIndex = items.size() - 1;
     items.transition()
         .attr("transform", function(d,i){return "translate(" + (i*60) + ","+ (margin.top / 2 - 35)+")"})
         .select("rect")
         .style("fill", function(d,i){
-                        if (i == 0 || i == lastIndex) { return purple; }
-                        if (i == 1) { return red; }
-                        if (i == lastIndex-1) { return blue; }
+                        if (i === 0 || i === lastIndex) { return purple; }
+                        if (i === 1) { return red; }
+                        if (i === lastIndex-1) { return blue; }
                         return "white";
         });
     }
