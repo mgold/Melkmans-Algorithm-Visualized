@@ -478,6 +478,7 @@ function newPoint(pos){
         renderYellowRegion();
         renderRBPregions();
         freeze = false;
+        state = 7;
     }else{
         if (red && !blue){
             text.html(explanations.pointInRed);
@@ -590,9 +591,11 @@ svg_polygon.on("mousemove", function(){
         if (numberIntersections){
             text.html(explanations.nonsimple(numberIntersections));
             validPoint = false;
-        }else{
-            if (!validPoint) state === 5 ? text.html(explanations.yellowRegion) : text.html(explanations.donePopping);
+        }else if (!validPoint){
             validPoint = true;
+            if (state === 5) text.html(explanations.yellowRegion)
+            if (state === 6) text.html(explanations.donePopping);
+            if (state === 7) text.html(explanations.pointInYellow)
         }
     }
     mousePoint(pos);
