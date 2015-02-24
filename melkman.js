@@ -251,7 +251,7 @@ d3.selectAll("svg").append("rect")
     .attr("height", function(d,i){return i ? height : margin.top - 30;});
 
 var g_deque = svg_deque.append("g")
-    .attr("transform", "translate("+((width - 60*4)/2)+",0)");
+    .translate((width - 60*4)/2, 0);
 
 var arrows = g_deque.append("line")
     .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
