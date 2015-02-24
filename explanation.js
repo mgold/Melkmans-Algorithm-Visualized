@@ -46,7 +46,7 @@ exports.nonsimple = function(n){
     var edges = n == 1 ? "edge has" : "edges have";
         return lines("Hey, that's not allowed.",
     "The algorithm assumes that the polygon is simple, meaning edges don't cross each other. The offending " + edges + " been highlighted in <strong class=error-red>bright red</strong>.",
-    "Try placing the point in one of the colored regions."
+    "The white region is off-limits. Try placing the point in one of the colored regions."
     )}
 
 exports.pointInYellow = lines("You've placed a point in the <strong class=yellow>yellow</strong> region, which is inside the known hull. Since this new point can't possibly be on the hull, we just ignore it.",
