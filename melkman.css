@@ -108,6 +108,15 @@ line, polyline, rect, path {
     stroke-width: 2;
 }
 
+path.hull, line.hull {
+    stroke: #15B6E5;
+    stroke-width: 6;
+}
+
+strong.hull {
+    background-color: #15B6E5;
+}
+
 line.err {
     stroke: red;
     stroke-width: 4;

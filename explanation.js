@@ -74,7 +74,7 @@ exports.donePopping = lines("We have now restored the order invariant of the deq
         "When you're ready, click the first point you placed to complete the polygon. You'll need an unobstructed line of sight to do so."
         );
 
-exports.finished = lines("Now that we've seen the last point on the polygon, take a moment to read the deque while also tracing the same points on the polygon. You'll notice that it is indeed the convex hull, as it has been all along.",
+exports.finished = lines("Now that we've seen the last point on the polygon, take a moment to read the deque while also tracing the same points on the polygon. You'll notice that it is indeed the <strong class=hull>convex hull</strong>, as it has been all along.",
         "Melkman's algorithm is <strong>online</strong>, meaning that it always has the answer for the data is has seen so far, without requiring any additional processing. Online algorithms have practical value when the data is too big to fit into memory or suffers from network latency. They also lend themselves to visualization, because the audience (that's you) can interact, predict, and respond to the dynamic presentation.",
         "Because each point was added and removed from the deque at most twice (once on each end), the algorithm has taken linear time."
         );

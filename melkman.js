@@ -253,6 +253,8 @@ d3.selectAll("svg").append("rect")
 var g_deque = svg_deque.append("g")
     .translate((width - 60*4)/2, 0);
 
+g_deque.append("line").attr("class", "hull");
+
 var arrows = g_deque.append("line")
     .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
     .translate(0, 75)
@@ -267,6 +269,7 @@ var g_yellow = svg_polygon.append("g"),
     g_lines  = svg_polygon.append("g"),
     g_points = svg_polygon.append("g");
 
+g_lines.append("path").attr("class", "hull");
 g_lines.append("path").attr("id", "path_poly");
 
 var text = d3.select("#text");
@@ -556,6 +559,20 @@ function finished(){
         .style("fill", "white")
         .remove();
     g_lines.selectAll(".err").remove();
+    g_lines.select(".hull")
+        .attr("d", line_gen([lastOnHull].concat(deque.toArray(), [lastOnHull])))
+        .attr("class", "hull")
+        .style("stroke-opacity", 0)
+        .transition().duration(750)
+        .style("stroke-opacity", 1);
+    g_deque.select(".hull")
+        .attr("x1", 30)
+        .attr("x2", (deque.length+1.3)*60)
+        .attr("y1", margin.top/2 - 15)
+        .attr("y2", margin.top/2 - 15)
+        .style("stroke-opacity", 0)
+        .transition().duration(750)
+        .style("stroke-opacity", 1);
 }
 function finale(){
     state = 31;
