@@ -579,10 +579,16 @@ svg_polygon.on("click", function(){
     if (points.length === 3) first3();
 })
 
+function adjustPosition(p){
+    var x = p[0]-7, y = p[1]-7;
+    x = Math.max(12, Math.min(x, width-10));
+    y = Math.max(12, Math.min(y, height-10));
+    return [x,y];
+}
+
 svg_polygon.on("mousemove", function(){
     if (freeze) return;
-    var pos = d3.mouse(svg_polygon.node());
-    pos = [pos[0] - 7, pos[1] - 7];
+    var pos = adjustPosition(d3.mouse(svg_polygon.node()));
     if (points.length > 3){
         var prev = points[points.length-2],
             numberIntersections = intersectsAny(prev, pos);
