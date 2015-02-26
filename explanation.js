@@ -67,7 +67,7 @@ exports.redRight = lines("Since the point was placed in the red region, the righ
         "In a real implementation, the algorithm would pop until these three points form a right turn when read rightward. The red region tells us humans that they already form a right turn.");
 
 exports.blueLeft = lines("You've placed a point in the <strong class=blue>blue</strong> region. This means that the left side of the deque does not need to be modified.",
-        "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The red region tells us humans that they already form a left turn.");
+        "In a real implementation, the algorithm would pop until these three points form a left turn when read leftward. The blue region tells us humans that they already form a left turn.");
 
 exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
         "The new deque is once again the convex hull of the known points. Now it's time to add another one!",
