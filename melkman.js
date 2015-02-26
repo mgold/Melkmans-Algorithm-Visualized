@@ -195,7 +195,7 @@ function mousePoint(p){
         p.s = alphabet.shift();
         points.push(p);
         var g = g_points.append("g").attr("id", "newest").attr("class", "hull-vertex").translate(p).datum(p);
-        var fill = newPos && p.s == newPos.s ? gray : "white";
+        var fill = points.length > 3 ? gray : "white";
         g.append("circle").attr("r", 10).style({fill: fill, stroke: "black"});
         g.append("text").text(p.s).attr("dy", "4px").style("font-size", "14px");
         return g;
