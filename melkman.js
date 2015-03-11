@@ -170,8 +170,67 @@ function corners(b0, b1){
     return ret;
 }
 
-// Polygon drawing
+// initialize document margins
 
+var margin = {top: 120, right: 20, bottom: 20, left: 400},
+    width = window.innerWidth - margin.left - margin.right,
+    height = window.innerHeight - margin.top - margin.bottom;
+
+console.log("width", width, "height", height);
+
+var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""));
+
+// inline styles?! Because CSS class transtitions didn't work.
+var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
+
+// SVG initialization and g elements
+
+var svg_deque = d3.select("#deque")
+            .attr("width", width + margin.right)
+            .attr("height", margin.top - 10);
+
+var svg_polygon = d3.select("#polygon")
+            .attr("width", width + margin.right)
+            .attr("height", height + margin.bottom - 5);
+
+d3.selectAll("svg").append("rect")
+    .attr({width: width-2, x: 1, y: 1, class: "bg"})
+    .attr("height", function(d,i){return i ? height : margin.top - 30;});
+
+var g_deque = svg_deque.append("g")
+    .translate((width - 60*4)/2, 0);
+
+g_deque.append("line").attr("class", "hull");
+
+var arrows = g_deque.append("line")
+    .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
+    .translate(0, 75)
+    .style("stroke", gray);
+
+svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
+    .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
+    .attr("x", function(d){return d*(width+margin.right);});
+
+var g_yellow = svg_polygon.append("g"),
+    g_regions = svg_polygon.append("g"),
+    g_lines  = svg_polygon.append("g"),
+    g_points = svg_polygon.append("g");
+
+g_lines.append("path").attr("class", "hull");
+g_lines.append("path").attr("id", "path_poly");
+
+var text = d3.select("#text");
+text.html(explanations.intro);
+
+// Sin Bin: Global state of the algorithm
+var points = [];
+var deque, lastOnHull, newPos;
+var freeze = false;
+var popping = false;
+var validPoint = true;
+var state = 0;
+
+// Functions to handle the polygon drawing
 var line_gen = d3.svg.line();
 function line(){
     return g_lines.select("#path_poly").datum(points).attr("d", line_gen);
@@ -226,63 +285,6 @@ function hullToInterior(p){
         .remove();
 }
 
-var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""));
-
-var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
-
-var margin = {top: 120, right: 20, bottom: 20, left: 400},
-    width = window.innerWidth - margin.left - margin.right,
-    height = window.innerHeight - margin.top - margin.bottom;
-
-console.log("width", width, "height", height);
-
-// SVG initialization and g elements
-
-var svg_deque = d3.select("#deque")
-            .attr("width", width + margin.right)
-            .attr("height", margin.top - 10);
-
-var svg_polygon = d3.select("#polygon")
-            .attr("width", width + margin.right)
-            .attr("height", height + margin.bottom - 5);
-
-d3.selectAll("svg").append("rect")
-    .attr({width: width-2, x: 1, y: 1, class: "bg"})
-    .attr("height", function(d,i){return i ? height : margin.top - 30;});
-
-var g_deque = svg_deque.append("g")
-    .translate((width - 60*4)/2, 0);
-
-g_deque.append("line").attr("class", "hull");
-
-var arrows = g_deque.append("line")
-    .attr({x2: 170, "marker-end": "url(#head)", class: "arrow", display: "none"})
-    .translate(0, 75)
-    .style("stroke", gray);
-
-svg_deque.selectAll(".cover").data([0,0.5]).enter().append("rect")
-    .attr({class: "cover", width: (width+margin.right)/2, height: margin.top})
-    .attr("x", function(d){return d*(width+margin.right);});
-
-var g_yellow = svg_polygon.append("g"),
-    g_regions = svg_polygon.append("g"),
-    g_lines  = svg_polygon.append("g"),
-    g_points = svg_polygon.append("g");
-
-g_lines.append("path").attr("class", "hull");
-g_lines.append("path").attr("id", "path_poly");
-
-var text = d3.select("#text");
-text.html(explanations.intro);
-
-// Sin Bin: Global state of the algorithm
-var points = [];
-var deque, lastOnHull, newPos;
-var freeze = false;
-var popping = false;
-var validPoint = true;
-var state = 0;
-
 // Functions to handle specific moments in the presentation
 
 function first3(){
@@ -323,6 +325,7 @@ function pointC(){
 // Main rendering functions
 
 function renderDeque(){
+    // Fair warning: this is the ugliest function in the project
     var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
                         : [newPos].concat(deque.toArray(), [newPos]);
     console.log(data.map(function(d){return d.s;}), lastOnHull.s, newPos && newPos.s);
@@ -392,12 +395,10 @@ function renderDeque(){
 function renderFills(){
     svg_polygon.selectAll(".hull-vertex circle")
         .transition()
-        //.duration(2000)
         .style("fill", function(d,i){
                         if (d.s === lastOnHull.s) { return purple; }
         })
         .transition()
-        //.delay(3000)
         .style("fill", function(d){
                         if (d.s === lastOnHull.s) { return purple; }
                         if (d.s === deque.peek().s) { return red; }
@@ -408,6 +409,7 @@ function renderFills(){
 }
 
 function rbpRegions(){
+    //rbp = red, blue, purple
     state++;
     text.html(explanations.rbpRegions);
     renderRBPregions();
@@ -463,7 +465,6 @@ function renderYellowRegion(){
         .style("fill", "white")
         .attr("class", "region")
       .transition()
-        //.duration(1200)
         .style("fill", yellow);
 }
 
