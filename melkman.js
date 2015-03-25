@@ -328,8 +328,8 @@ function renderDeque(){
     // Fair warning: this is the ugliest function in the project
     var data = !popping ? [lastOnHull].concat(deque.toArray(), [lastOnHull])
                         : [newPos].concat(deque.toArray(), [newPos]);
-    console.log(data.map(function(d){return d.s;}), lastOnHull.s, newPos && newPos.s);
     if (!popping){
+        console.log("deque is", data.map(function(d){return d.s;}));
         g_deque.transition().duration(750)
             .attr("transform", "translate("+((width - 60*data.length)/2)+",0)");
     }
@@ -468,6 +468,19 @@ function renderYellowRegion(){
         .style("fill", yellow);
 }
 
+function renderDashedLines(){
+    var data = [[deque.peek(), toBoundary(deque.peek2(), deque.peek())],
+                [deque.peekBack(), toBoundary(deque.peekBack2(), deque.peekBack())]];
+    var lines = g_lines.selectAll("line.dashed")
+        .data(data)
+    lines.enter().append("line").attr("class", "dashed");
+    lines.attr("x1", function(d){return d[0][0];})
+        .attr("y1", function(d){return d[0][1];})
+        .attr("x2", function(d){return d[1][0];})
+        .attr("y2", function(d){return d[1][1];});
+    lines.exit().remove();
+}
+
 // Determine region and handle new point
 
 function newPoint(pos){
@@ -545,6 +558,7 @@ function fixRight(){
         renderFills();
         renderRBPregions();
         renderYellowRegion();
+        renderDashedLines();
         freeze = false;
     }
 }
@@ -559,7 +573,7 @@ function finished(){
     svg_polygon.selectAll("path.region").transition().duration(500)
         .style("fill", "white")
         .remove();
-    g_lines.selectAll(".err").remove();
+    g_lines.selectAll(".err, .dashed").remove();
     g_lines.select(".hull")
         .attr("d", line_gen([lastOnHull].concat(deque.toArray(), [lastOnHull])))
         .attr("class", "hull")

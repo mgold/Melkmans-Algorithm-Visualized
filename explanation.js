@@ -71,6 +71,7 @@ exports.blueLeft = lines("You've placed a point in the <strong class=blue>blue</
 
 exports.donePopping = lines("We have now restored the order invariant of the deque, and can now add the newly added point to both ends.",
         "The new deque is once again the convex hull of the known points. Now it's time to add another one!",
+        "Dashed gray lines show the extension of the polygon from the interior past the red and blue points, which will be popped if the new point is beyond those lines.",
         "When you're ready, click the first point you placed to complete the polygon. You'll need an unobstructed line of sight to do so."
         );
 

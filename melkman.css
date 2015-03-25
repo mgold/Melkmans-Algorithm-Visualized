@@ -122,6 +122,12 @@ line.err {
     stroke-width: 4;
 }
 
+line.dashed {
+    stroke: #DDD;
+    stroke-width: 1;
+    stroke-dasharray: 10, 10;
+}
+
 rect.bg {
     stroke: #BDBAB6;
     stroke-width: 1px;
