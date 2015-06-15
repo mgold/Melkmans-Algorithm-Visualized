@@ -463,7 +463,7 @@ function renderYellowRegion(){
         .attr("d", line_gen)
         .style("fill", "white")
         .attr("class", "region")
-      .transition().duration(transitionInLen).delay(3*transitionInLen)
+      .transition().duration(transitionInLen).delay(state===5 ? 0 : 3*transitionInLen)
         .style("fill", yellow);
 }
 
