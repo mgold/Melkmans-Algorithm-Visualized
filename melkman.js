@@ -416,8 +416,8 @@ function rbpRegions(){
 }
 
 function renderRBPregions(){
+    var transitionInLen = 1200;
     var transitionOutLen = 200;
-    var transitionInLen = 300; // 1200?
     g_regions.selectAll("path.region").transition().duration(transitionOutLen)
         .style("fill", "white")
         .remove();
@@ -453,8 +453,8 @@ function yellowRegion(){
 }
 
 function renderYellowRegion(){
+    var transitionInLen = 800;
     var transitionOutLen = 200;
-    var transitionInLen = 300; // 1200?
     g_yellow.selectAll("path").transition().duration(transitionOutLen)
         .style("fill", "white")
         .remove();
@@ -464,7 +464,7 @@ function renderYellowRegion(){
         .attr("d", line_gen)
         .style("fill", "white")
         .attr("class", "region")
-      .transition()
+      .transition().duration(transitionInLen)
         .style("fill", yellow);
 }
 
