@@ -183,6 +183,9 @@ var alphabet = new Deque("abcdefghijklmnopqrstuvwxyz".split(""));
 // inline styles?! Because CSS class transtitions didn't work.
 var red = "#FF7777", blue = "#7777FF", purple = "#DA54FF", yellow = "#FFFF84", gray = "#DDD";
 
+var transitionInLen = 600;
+var transitionOutLen = 200;
+
 // SVG initialization and g elements
 
 var svg_deque = d3.select("#deque")
@@ -416,8 +419,6 @@ function rbpRegions(){
 }
 
 function renderRBPregions(){
-    var transitionInLen = 1200;
-    var transitionOutLen = 200;
     g_regions.selectAll("path.region").transition().duration(transitionOutLen)
         .style("fill", "white")
         .remove();
@@ -453,8 +454,6 @@ function yellowRegion(){
 }
 
 function renderYellowRegion(){
-    var transitionInLen = 800;
-    var transitionOutLen = 200;
     g_yellow.selectAll("path").transition().duration(transitionOutLen)
         .style("fill", "white")
         .remove();
@@ -464,7 +463,7 @@ function renderYellowRegion(){
         .attr("d", line_gen)
         .style("fill", "white")
         .attr("class", "region")
-      .transition().duration(transitionInLen)
+      .transition().duration(transitionInLen).delay(3*transitionInLen)
         .style("fill", yellow);
 }
 
@@ -477,7 +476,10 @@ function renderDashedLines(){
     lines.attr("x1", function(d){return d[0][0];})
         .attr("y1", function(d){return d[0][1];})
         .attr("x2", function(d){return d[1][0];})
-        .attr("y2", function(d){return d[1][1];});
+        .attr("y2", function(d){return d[1][1];})
+        .style("stroke-opacity", 0)
+      .transition().duration(transitionInLen).delay(4*transitionInLen)
+        .style("stroke-opacity", 1);
     lines.exit().remove();
 }
 
